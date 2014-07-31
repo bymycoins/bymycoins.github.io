@@ -493,6 +493,83 @@ Play with it if you like, but don't put in any serious money.
         var oracle_view_base = oracle_base + '/fact/';
         var oracle_param_string = '?accept_terms_of_service=current';
 
+        function assert(val, description) {
+            if (!val) {
+                console.log("ASSERT FAIL: "+description);
+            }
+        }
+
+        // Return sanitized pubkey, or null if it doesn't look like a proper pubkey
+        // TODO: If we get uncompressed stuff here, compress it.
+        function format_pubkey(txt) {
+            txt = txt.toLowerCase();
+            // TODO: If passed uncompressed keys, compress them instead of failing
+            if (/[0-9a-f]{66}/.test(txt)) {
+                return txt;
+            } else {
+                return null;
+            }
+        }
+
+        function format_fact_id(txt) {
+            return parseInt(txt) + '';
+        }
+
+        function format_address(txt) {
+            // NB We allow any prefix to allow for various alt-coins and things
+            if (/[0-9A-Za-z]{20,40}/.test(txt)) {
+                return txt;
+            } else {
+                return null;
+            }
+        }
+
+        function test_format_sanitization() {
+
+            var addr = format_address('thing%thing');
+            assert((addr == null), 'script tags addr format to null');
+            assert((format_address('1923abcdez92') == null) , 'base 58 check less than 20 chars fails');
+            var valid_addr = '01234567891232323201234567892323232';
+            assert(valid_addr == format_address(valid_addr) , 'base 58 check returns orig address if pattern generally ok');
+            assert(format_pubkey('abcdj') == null, 'pubkey with non-hex characters returns null' );
+
+            assert(format_pubkey('A0B0C0D0E0') == null, 'pubkey with non-hex characters returns null' );
+            var valid_pubkey = '02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28';
+            assert(valid_pubkey == format_pubkey(valid_pubkey), 'valid pubkey returns sanitized identically');
+
+            assert(valid_pubkey == format_pubkey('02D8CB2A0Ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28'), 'capital letters in hex come back lower-cased');
+
+        }
+
+        function test_hash_to_contract() {
+
+            var a_pub = '02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28';
+            var b_pub = '0254694936f88db742069686bd964020e3c453120044ae35fb2a91ed556b93e1e7';
+            var fact_id = '2';
+
+            assert(hash_to_contract('asdf') == null, 'Badly formatted hash returns null');
+
+            var valid_hash = '#' + a_pub + '-' + b_pub + '-' + fact_id + '-' + 'tbtc';
+            var c = hash_to_contract(valid_hash);
+            assert(c != null, 'Valid hash produces non-null contract object');
+            assert(c['yes_user_pubkey'] == a_pub, 'Item 1 in hash produces contract object with yes_user_pubkey');
+            assert(c['no_user_pubkey'] == b_pub, 'Item 2 in hash produces contract object with no_user_pubkey');
+            assert(c['id'] == fact_id, 'Item 3 produces contract object with correct fact id');
+            assert(c['is_testnet'], 'Item 4 as tbtc produces is_testnet as true');
+
+            var valid_hash_2 = '#' + a_pub + '-' + b_pub + '-' + fact_id + '-' + 'btc';
+            var c2 = hash_to_contract(valid_hash_2);
+            assert(!c2['is_testnet'], 'Item 4 as not tbtc produces is_testnet as false');
+
+        }
+
+        function run_tests() {
+
+            test_format_sanitization();
+            test_hash_to_contract();
+
+        }
+
         function store_contract(c, is_update) {
 
             console.log("storing:");
@@ -556,7 +633,7 @@ Play with it if you like, but don't put in any serious money.
 
         // Return a hash of athlete names and true/false for default or not
         function load_athletes() {
-console.log('loading a');
+    	   //console.log('loading a');
             athlete_json_str = localStorage.getItem('athlete_store');
             if (!athlete_json_str) {
                 return [];
@@ -592,8 +669,8 @@ console.log('loading a');
 
         function store_key(k) {
 
-            console.log("storing:");
-            console.log(k);
+            //console.log("storing:");
+            //console.log(k);
             var key_store = {
                 'seeds': {},
                 'default': null
@@ -606,7 +683,7 @@ console.log('loading a');
             }
             key_store['seeds'][seed_id] = k;
             key_store['default'] = seed_id;
-            console.log(JSON.stringify(key_store));
+            //console.log(JSON.stringify(key_store));
 
             localStorage.setItem('key_store', JSON.stringify(key_store));
 
@@ -628,8 +705,8 @@ console.log('loading a');
                 if (k['pub'] == pub) {
                     return k['priv'];
                 }
-                console.log("no match for "+pub+": "+k['pub']);
-                console.log(k);
+                //console.log("no match for "+pub+": "+k['pub']);
+                //console.log(k);
             }
             return null;
 
@@ -639,7 +716,7 @@ console.log('loading a');
 
             key_json_str = localStorage.getItem('key_store');
             if (key_json_str) {
-                console.log("got key store");
+                //console.log("got key store");
                 var key_store = JSON.parse(key_json_str);
                 var default_entry = key_store['default'];
                 return key_store['seeds'][default_entry];
@@ -653,10 +730,10 @@ console.log('loading a');
             var seed = inp.val();
             var is_testnet = $('#is-testnet').is(':checked');
             k = key_for_seed(seed, is_testnet);
-            console.log("got k");
-            console.log(k);
+            //console.log("got k");
+            //console.log(k);
             store_key(k);
-            $('#public-key').html(k['pub']);
+            $('#public-key').text(k['pub']);
 
         }
 
@@ -679,7 +756,7 @@ console.log('loading a');
                 type: 'GET',
                 dataType: 'json', 
                 success: function(data) {
-                    console.log(data);
+                    //console.log(data);
                     alert('ok');
                 },
                 error: function(data) {
@@ -688,15 +765,17 @@ console.log('loading a');
                 }
             });
 
-
         }
 
-        function view_contract_if_in_hash(import_hash) {
+        function hash_to_contract(import_hash) {
 
-            // This should be either a URL with the stuff we want after the hash
-            // Or the stuff we want entered on its own
+            if (!/^#.*-.*-\d+-t?btc$/.test(import_hash)) {
+                console.log('import hash wrongly formatted, not even going to try to parse it');
+                return null;
+            }
+
             var url_parts = import_hash.split('#');
-            //var url_parts = import_hash;
+
             var url_part = url_parts[1];
             var contract_data = url_part.split('-');
 
@@ -705,11 +784,31 @@ console.log('loading a');
                 return false;
             }
 
+            var yes_user_pubkey =  format_pubkey(contract_data[0]);
+            var no_user_pubkey = format_pubkey(contract_data[1]);
+            var fact_id = format_fact_id(contract_data[2]);
+            var is_testnet = prefix_to_testnet_setting(contract_data[3]);
+
+            if ( yes_user_pubkey == null || no_user_pubkey == null || fact_id == null) {
+                return null;
+            }
+
             var c = {};
-            c['yes_user_pubkey'] = contract_data[0];
-            c['no_user_pubkey'] = contract_data[1];
-            c['id'] = contract_data[2];
-            c['is_testnet'] = (contract_data[3] == 'tbtc');
+            c['yes_user_pubkey'] = yes_user_pubkey;
+            c['no_user_pubkey'] = no_user_pubkey;
+            c['id'] = fact_id;
+            c['is_testnet'] = is_testnet;
+
+            return c;
+
+        }
+
+        function view_contract_if_in_hash(import_hash) {
+
+            var c = hash_to_contract(import_hash);
+            if (c == null) {
+                return false;
+            }
 
             var url = sharing_url(c, false);
             $('#view-single-goal').attr('name', url);
@@ -738,7 +837,7 @@ console.log('loading a');
 
             $('#goal-view-reality-key-link').attr('href', '#');
             $('#goal-view-reality-key-link-container').hide();
-            $('#goal-view-balance').html('');
+            $('#goal-view-balance').text('');
             $('#goal-view-balance-container').hide();
 
 
@@ -797,14 +896,14 @@ console.log('loading a');
 
                     data['address'] = p2sh_address(data);
 
-                    $('#view-user').html(data['user']);
-                    $('#view-activity').html(data['activity']);
-                    $('#view-measurement').html(data['measurement']);
-                    $('#view-goal').html(data['goal']);
-                    $('#view-settlement_date').html(data['settlement_date']);
-                    $('#view-charity-display-name').html(data['charity_display']);
-                    $('#view-charity-public-key').html(data['no_user_pubkey']);
-                    $('#view-user-public-key').html(data['yes_user_pubkey']);
+                    $('#view-user').text(data['user']);
+                    $('#view-activity').text(data['activity']);
+                    $('#view-measurement').text(data['measurement']);
+                    $('#view-goal').text(data['goal']);
+                    $('#view-settlement_date').text(data['settlement_date']);
+                    $('#view-charity-display-name').text(data['charity_display']);
+                    $('#view-charity-public-key').text(data['no_user_pubkey']);
+                    $('#view-user-public-key').text(data['yes_user_pubkey']);
 
                     $('#goal-view-reality-key-link').attr('href', oracle_view_base + c['id']).show();
                     $('#goal-view-reality-key-link-container').show();
@@ -870,7 +969,7 @@ console.log('loading a');
                         dataType: 'json', 
                         success: function(tx_data) {
                             var balance = tx_data['data']['balance'];
-                            $('#goal-view-balance').html(balance);
+                            $('#goal-view-balance').text(balance);
                             $('#goal-view-balance-container').show();
                             if (balance > 0 && i_won && data['winner_privkey']) {
                                 $('#single-claim-button').unbind('click').click( function() {
@@ -1098,6 +1197,10 @@ console.log('loading a');
             }
         }
 
+        function prefix_to_testnet_setting(prefix) {
+            return (prefix == 'tbtc');
+        }
+
         function sharing_url(c, full) {
             var store = c['yes_user_pubkey']+'-'+c['no_user_pubkey']+'-'+c['id']+'-'+testnet_setting_to_prefix(c['is_testnet']);;
             var base = '';
@@ -1122,24 +1225,24 @@ console.log('loading a');
             var row = frm.find('.contract-data-template').clone().removeClass('contract-data-template').addClass('contract-data-row').attr('data-address',c['address']);
             var lnk = $('<a>');
             if (c['is_testnet']) {
-                lnk.attr('href', 'http://tbtc.blockr.io/address/info/' + c['address']);
+                lnk.attr('href', 'http://tbtc.blockr.io/address/info/' + format_address(c['address']));
             } else {
-                lnk.attr('href', 'https://blockchain.info/address/' + c['address']);
+                lnk.attr('href', 'https://blockchain.info/address/' + format_address(c['address']));
             }
-            lnk.html(c['balance']);
+            lnk.text(c['balance']);
 
             row.find( "[data-type='funds']" ).html(lnk);
-            row.find( "[data-type='user']" ).html(c['user']);
-            row.find( "[data-type='activity']" ).html(c['activity']);
-            row.find( "[data-type='measurement']" ).html(c['measurement']);
-            row.find( "[data-type='goal']" ).html(c['goal']);
-            row.find( "[data-type='settlement_date']" ).html(c['settlement_date']);
+            row.find( "[data-type='user']" ).text(c['user']);
+            row.find( "[data-type='activity']" ).text(c['activity']);
+            row.find( "[data-type='measurement']" ).text(c['measurement']);
+            row.find( "[data-type='goal']" ).text(c['goal']);
+            row.find( "[data-type='settlement_date']" ).text(c['settlement_date']);
 
             var charity_display = c['charity_display'];
             if (charity_display == '') {
                 charity_display = c['no_user_pubkey'];
             }
-            row.find( "[data-type='charity-display']" ).html(charity_display);
+            row.find( "[data-type='charity-display']" ).text(charity_display);
 
             row.find('.view-button').click( function() {
                 //bootbox.alert(sharing_url(c));
@@ -1431,7 +1534,7 @@ console.log('loading a');
 
             var default_athlete = load_default_athlete();
             if (default_athlete != null) {
-                $('#connected-athlete-display').html(default_athlete);
+                $('#connected-athlete-display').text(default_athlete);
                 $('.athlete-connected').show();
                 $('.athlete-disconnected').hide();
                 $('#user').val(default_athlete);
@@ -1532,13 +1635,13 @@ console.log('loading a');
 
             $('#claim-form').find('.contract-data-template').hide();
 
-            console.log("trying to load default key");
+            //console.log("trying to load default key");
             if (default_seed = load_default_key()) {
-                console.log("got default seed:");
-                console.log(default_seed);
+                //console.log("got default seed:");
+                //console.log(default_seed);
                 $('#seed').val(default_seed['seed']);
                 $('#is-testnet').prop('checked', default_seed['is_testnet']);
-                $('#public-key').html(default_seed['pub']);
+                $('#public-key').text(default_seed['pub']);
             }
 
             update_submittable();
@@ -1572,6 +1675,8 @@ console.log('loading a');
         }
 
         initialize_page();
+
+	run_tests();
 
     });
 
