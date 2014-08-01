@@ -53,13 +53,7 @@
     This will be empty unless you hit "view" or have the details in a URL.
     We use visibility hidden here instead of display none to avoid confusing the browser trying to link to an anchor that isn't being displayed, which can cause strange visual effects.
     */
-    /*
     #goal-view-section { visibility: hidden }
-    */
-    /*
-    .for-list .single-view { display:none }
-    .for-single .list-view { display:none }
-    */
     .completed-form-control { vertical-align:middle; height:100% }
     </style>
 
@@ -238,8 +232,8 @@ Play with it if you like, but don't put in any serious money.
                     <div class="col-md-4">
                     <select class="form-control" id="activity">
                         <option value=""></option>
-                        <option value="running">Running</option>
-                        <option value="walking" selected>Walking</option>
+                        <option data-verb="run" data-unit="m" value="running">Running</option>
+                        <option data-verb="walk" data-unit="m" value="walking" selected>Walking</option>
                       </select>
                     </div>
                   </div>
@@ -467,8 +461,6 @@ Play with it if you like, but don't put in any serious money.
       </div>
     </div>
   </div>
-
-
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

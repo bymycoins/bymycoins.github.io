@@ -652,9 +652,12 @@ $(function() {
                     return false;
                 });
 
-                var txt = 'I will complete ' + data['activity'] + ' ' + data['goal'] + ' m by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
+                var txt = 'I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
                 txt = txt + ' ' + sharing_url(data, true);
                 $('#tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
+
+                var section_title = data['user'] + ' to complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'];
+                section_title = section_title.charAt(0).toUpperCase()+section_title.substring(1); // capitalize first letter
 
                 // Should already be visible but do it again in case something happened out of sequence
                 $('#goal-view-section').css('visibility', 'visible');
@@ -662,6 +665,7 @@ $(function() {
 
                 // Hide the loading text 
                 $('.view-goal-form-loading').hide();
+                $('.view-goal-form-title').text(section_title);
                 $('.view-goal-form-title').show();
 
                 $('#goal-view-section').find('form').css('visibility', 'visible');
