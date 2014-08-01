@@ -47,63 +47,16 @@ Script.createMultisigGroups = function( n_required_arr, inKeys_arr, opts) {
 
 };
 
-/*
-// is this a script form we know?
-Script.prototype.classify = function() {
-    var ret = 
-    if (this.isPubkeyHash())
-        return Script.TX_PUBKEYHASH;
-    if (this.isP2SH())
-        return Script.TX_SCRIPTHASH;
-    if (this.isMultiSig())
-        return Script.TX_MULTISIG;
-    if (this.isPubkey())
-        return Script.TX_PUBKEY;
-    return Script.TX_UNKNOWN;
-};
-*/
-
-
-/*
-TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input, txSigHash) {
-    var scriptSig = this._signMultiSig(walletKeyMap, input, txSigHash);
-    var ret = {
-        inputFullySigned: true, // pretend
-        signaturesAdded: 2,
-        script: scriptSig.getBuffer(),
-    };
-    return ret;
-}
-*/
-
 
 TransactionBuilder._signHashAndVerify = function(wk, txSigHash) {
   var triesLeft = 10, sigRaw;
-  console.log(".");
-  console.log(".");
-  console.log(".");
-  console.log("in _signHashAndVerify");
-  console.log(wk.privKey.private.toString('hex'));
+  //console.log(".");
+  //console.log(".");
+  //console.log(".");
+  //console.log("in _signHashAndVerify");
+  //console.log(wk.privKey.private.toString('hex'));
   //console.log(wk);
-  console.log(txSigHash.toString('hex'));
-
-  // hard-code the python sigs to see if this will broadcast if we get it signed right
-  /*
-  console.log("SWITCHED BACKWARDS!!");
-  if (wk.privKey.private.toString('hex') == '0b3241c4cd735fb50874b765ac172e143cc308a36a9fee3123022b6f7b660d56') {
-      console.log("using py sig for sig1");
-      var s = new Buffer( "3045022100b48ad2a32af3d0860b063d45ba21a20e9733a48015e1125cc97d8891b2bb351102206577591e8b0d7a15d6378b4f05323566e18a2e3321d6de64b832bbd1f6857d5c", 'hex');
-      console.log(s.toString('hex'));
-      console.log("3045022100b48ad2a32af3d0860b063d45ba21a20e9733a48015e1125cc97d8891b2bb351102206577591e8b0d7a15d6378b4f05323566e18a2e3321d6de64b832bbd1f6857d5c");
-      return new Buffer( "3045022100b48ad2a32af3d0860b063d45ba21a20e9733a48015e1125cc97d8891b2bb351102206577591e8b0d7a15d6378b4f05323566e18a2e3321d6de64b832bbd1f6857d5c", 'hex');
-  }
-
-  if (wk.privKey.private.toString('hex') == '642c9152b779ccacc23b15b5e7d75ce8b170600d7c732af390bedbbf08af7821') {
-      console.log("using py sig for sig2");
-      return new Buffer( "30450220369de2ff048f3354f691a1c860f297662bee7391b9600c1134d679a534473d30022100e2b21c3446cbb69192e827982e9d71524511ab6c506c007257cff00a47a57c2e", 'hex');
-  }
-  */
-
+  //console.log(txSigHash.toString('hex'));
 
   do {
     sigRaw = wk.privKey.signSync(txSigHash);
@@ -113,11 +66,13 @@ TransactionBuilder._signHashAndVerify = function(wk, txSigHash) {
   if (triesLeft<0)
     throw new Error('could not sign input: verification failed');
 
+  /*
   console.log("_signHashAndVerify returns:");
   console.log(sigRaw.toString('hex'));
   console.log(".");
   console.log(".");
   console.log(".");
+  */
   return sigRaw;
 };
 
@@ -128,6 +83,7 @@ This is because otherwise it doesn't know which ones actually need signing with.
 */
 TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input, txSigHash) {
 
+    /*
     console.log("input:");
     console.log(input);
 
@@ -136,6 +92,7 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
 
     console.log("Chunks:");
     console.log(input.scriptPubKey.chunks);
+    */
 
     var section_pubs = [];
     var section_nreqs = [];
@@ -187,8 +144,10 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
 
     }
 
+    /*
     console.log("wallet key map:");
     console.log(walletKeyMap);
+    */
 
     // Work out which section to sign for
     signable_section = -1;
@@ -219,83 +178,62 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
     var pubkeys = section_pubs[signable_section];
 
     originalScriptBuf = this.tx.ins[input.i].s;
-    console.log("originalScriptBuf:");
-    console.log(originalScriptBuf.toString('hex'));
+    //console.log("originalScriptBuf:");
+    //console.log(originalScriptBuf.toString('hex'));
 
     var scriptSig = new Script(originalScriptBuf);
     scriptSig.prependOp0(); // a nothing for checkmultisig to chomp on
-    console.log("initial sigscript");
-    console.log(scriptSig.toString('hex'));
+    //console.log("initial sigscript");
+    //console.log(scriptSig.toString('hex'));
     var signaturesAdded = 0;
 
     for(var j=0; j<pubkeys.length; j++) {
         var pub = pubkeys[j];
-//console.log("signing with pubkey:");
-//console.log(pub.toString('hex'));
+        //console.log("signing with pubkey:");
+        //console.log(pub.toString('hex'));
         var wk = this._findWalletKey(walletKeyMap, {pubKeyBuf: pub});
         if (!wk) {
-//console.log("key not found, skipping");
+            //console.log("key not found, skipping");
             continue;
         }
 
 
-  // test
         var sigRaw  = TransactionBuilder._signHashAndVerify(wk, txSigHash);
         var sigType = new Buffer(1);
         sigType[0]  = this.signhash;
- //       console.log("sigtype is ");
-  //      console.log(sigType);
+        // console.log("sigtype is ");
+        // console.log(sigType);
         var sig     = Buffer.concat([sigRaw, sigType]);
-   //     console.log("Made temp sig:");
-    //    console.log(sig.toString('hex'));
+        // console.log("Made temp sig:");
+        // console.log(sig.toString('hex'));
 
         scriptSig.chunks.push(sig);
 
-            /*
-            console.log("before adding sig, chunks are:");
-            console.log(scriptSig.chunks);
-        var newScriptSig = this._updateMultiSig(j, wk, scriptSig, txSigHash, pubkeys);
-        if (newScriptSig) {
-            scriptSig = newScriptSig;
-            console.log("Added sig, chunks are now:");
-            console.log(scriptSig.chunks);
-            */
-            /*
-            for(var cl = 0; cl < scriptSig.chunks.length; cl++ ) {
-                chk = scriptSig.chunks[cl];
-                try {
-                console.log(chk.toString('hex'));
-                } catch (e) {
-                    console.log("skip");
-                }
-            }
-            */
-
         signaturesAdded++;
         if (signaturesAdded == nreq) {
-console.log("done "+signaturesAdded+" sigs, break");
+            //console.log("done "+signaturesAdded+" sigs, break");
             break;
         }
     }
 
     var branch_flag = signable_section == 0 ? Opcode.map.OP_1 : Opcode.map.OP_0;
     //alert(branch_flag);
-    console.log("chunks and buffer before branch flag:")
-    console.log(scriptSig.chunks);
-    console.log(scriptSig.getBuffer().length);
+    //console.log("chunks and buffer before branch flag:")
+    //console.log(scriptSig.chunks);
+    //console.log(scriptSig.getBuffer().length);
     scriptSig.chunks.push( branch_flag );
     scriptSig.updateBuffer();
-    console.log("chunks and buffer after branch flag:")
-    console.log(scriptSig.chunks);
-    console.log(scriptSig.getBuffer().length);
+    //console.log("chunks and buffer after branch flag:")
+    //console.log(scriptSig.chunks);
+    //console.log(scriptSig.getBuffer().length);
 
     var ret = {
         inputFullySigned: (signaturesAdded == nreq), // original version would have handled pre-signed transactions using countSignatures()
         signaturesAdded: signaturesAdded,
         script: scriptSig.getBuffer(),
     };
-console.log("made ret:");
-console.log(ret);
+    //console.log("made ret:");
+    //console.log(ret);
     return ret;
 
 };
@@ -349,7 +287,7 @@ Script.prototype.classify = function() {
         ret = Script.TX_PUBKEY;
     else if (this.isMultiSigGroups())
         ret = Script.TX_MULTISIG_GROUPS;
-    console.log("classify is returning "+ret);
+    //console.log("classify is returning "+ret);
     return ret;
 };
 
@@ -376,21 +314,12 @@ TransactionBuilder.prototype._p2shInput = function(input) {
 };
 
 TransactionBuilder.prototype.sign = function(keys) {
-    console.log("in my sign");
+    //console.log("tn my sign");
     this._checkTx();
     var tx  = this.tx,
     ins = tx.ins,
     l   = ins.length,
     walletKeyMap = TransactionBuilder._mapKeys(keys);
-
-    /*
-    var fnToSign = {};
-    fnToSign[Script.TX_PUBKEYHASH] = TransactionBuilder.prototype._signPubKeyHash;
-    fnToSign[Script.TX_PUBKEY]     = TransactionBuilder.prototype._signPubKey;
-    fnToSign[Script.TX_MULTISIG]   = TransactionBuilder.prototype._signMultiSig;
-    fnToSign[Script.TX_SCRIPTHASH] = TransactionBuilder.prototype._signScriptHash;
-    fnToSign[Script.TX_MULTISIG_GROUPS] = TransactionBuilder.prototype._signMultiSigGroups;
-    */
 
     for (var i = 0; i < l; i++) {
         var input = this.inputMap[i];
@@ -398,9 +327,9 @@ TransactionBuilder.prototype.sign = function(keys) {
         //console.log(fnToSign);
 
         var txSigHash = this.tx.hashForSignature(input.scriptPubKey, i, this.signhash);
-        console.log("scriptType is "+input.scriptType);
-console.log("sign function is:");
-console.log(fnToSign[input.scriptType]);
+        //console.log("scriptType is "+input.scriptType);
+        //console.log("sign function is:");
+        //console.log(fnToSign[input.scriptType]);
         var ret = fnToSign[input.scriptType].call(this, walletKeyMap, input, txSigHash);
         if (ret && ret.script) {
             tx.ins[i].s = ret.script;

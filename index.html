@@ -607,7 +607,7 @@ Play with it if you like, but don't put in any serious money.
             test_format_sanitization();
             test_hash_to_contract();
             test_mnemonic_handling();
-            //test_p2sh_address_creation();
+            test_transaction_cycle();
 
         }
 
@@ -628,22 +628,99 @@ Play with it if you like, but don't put in any serious money.
 
         function test_transaction_cycle() {
 
-            // An old fact to test on, with a published key
-            // The following comes directly from 
-            // https://www.realitykeys.com/api/v1/blockchain/2/?accept_terms_of_service=current
-            var c = {"no_pubkey": "037545a3b495208ba67328773361ca5c0037352839d3c634251b540e91b61e0fd8", "chain": "XBT", "comparison": "ge", "settlement_date": "2014-01-10", "objection_period_secs": 604800, "human_resolution_scheduled_datetime": null, "address": "1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX", "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-01-10 00:00:00", "created_datetime": "2014-01-09 03:43:16", "winner": "Yes", "value": "1000", "id": 2, "source": "blockchain", "yes_pubkey": "02585eca9b441b0e17b12145f2d73ac7dd8da1eae7cdb4022db6b78f224db3bdc9", "objection_fee_satoshis_due": 1000000, "winner_privkey": "Kxy3FHDN8KYG6Q6CQ42vzqQywduhp2SmjmQWK99RRh2UvRFdgdie", "which_total": "totalreceived"};
-            c['yes_user_pubkey'] = '02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28';
-            c['no_user_pubkey'] = '0254694936f88db742069686bd964020e3c453120044ae35fb2a91ed556b93e1e7';
-            c['is_testnet'] = true;
+            var yes_user_mnemonic = 'glad everywhere alone rabbit daily bank date goal force glorious some freely';
+            var yes_user_mne = new Mnemonic(yes_user_mnemonic.split(' ')); 
+            var yes_user_seed = yes_user_mne.toHex();
+            var yes_user_key_obj = key_for_new_seed(yes_user_seed);
+            var yes_user_privkey = yes_user_key_obj['priv'];
+            var yes_user_pubkey = yes_user_key_obj['pub'];
+            assert(yes_user_pubkey == '03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3', 'Yes user pubkey as expected');
 
+            var no_user_mnemonic = 'manage wound those decide rule sadness confusion cheese house decision mutter girl';
+            var no_user_mne = new Mnemonic(no_user_mnemonic.split(' ')); 
+            var no_user_seed = no_user_mne.toHex();
+            var no_user_privkey = key_for_new_seed(no_user_seed);
+            var no_user_pubkey = '0213e0a3f741cd305571366ee3d30bfd819bd95b6f0d8dea0ee13a10dc3f6cf4e6';
 
+            var cash_out_address = 'mrYtQCHVLFrvrkt7Wf3TEajsZ9UwDMDKCs';
+
+            // The following are previously-settled Reality Keys runkeeper facts
+            // The resulting object should be the same as what you would get if you fetched the json from the api
+
+            // https://www.realitykeys.com/api/v1/runkeeper/251/?accept_terms_of_service=current
+            var yes_fact = {"no_pubkey": "03ead85d26a8339abffabe420a5cc23d9a12a0d005a7d248c80c0d43cf969236e3", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user": "edochan", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "123", "created_datetime": "2014-07-23 03:30:47", "winner": "Yes", "value": "123", "id": 251, "source": "runkeeper", "yes_pubkey": "03ef92fd0593af4e10de665d1b25703a76af84349becdf6830b290a010db837460", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L4URPwQTLbuZjhZZB3VCway3AGtMHGtxiY1JpjwSj7EKgwvF8oYa"};
+
+            // https://www.realitykeys.com/api/v1/runkeeper/252/?accept_terms_of_service=current
+            var no_fact = {"no_pubkey": "02c5671e3ec059bd200665d227e99e3f3f0f28ecdf848c4bfb5de408e5def8300a", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user": "edochan", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "12300", "created_datetime": "2014-07-23 09:11:05", "winner": "No", "value": "12300", "id": 252, "source": "runkeeper", "yes_pubkey": "02f70abb10f616d102b67ea0cc5f4887df642771c4dce5ba838ac88e465210dd64", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L3iW65EC59fvWjsRz2TNPjBtueyBt2mkGE59LdG5nAf463YTRD45"}
+
+            // testnet contract for fact 251 (yes)
+            var c251t = yes_fact; // NB This will have more fields filled than we would have in reality
+            c251t['is_testnet'] = true;
+            c251t['yes_user_pubkey'] = yes_user_pubkey;
+            c251t['no_user_pubkey'] = no_user_pubkey;
+            c251t['is_testnet'] = true;
+            var c251t_fund_address = p2sh_address(c251t);
+            assert('2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU' == c251t_fund_address, 'fact 251 gives us the expected funding address');
+
+            // mainnet version of the same thing
+            var c251m = c251t;
+            c251m['is_testnet'] = false;
+            assert(p2sh_address(c251m) != c251t_fund_address, 'Without testnet flag p2sh address is different to testnet version');
+
+            // These will be actual testnet transactions, but once we have run the test once they will have been spent
+            var funded1 = 0.01;
+            var funded2 = 0.02;
+            var fund_txid_1 = 'deebc555268396f24d46575b56df839316525796497809b476e29d17c1e2c0ef'; 
+            var fund_txid_2 = 'aaf895c26bd32b4fb575b878ad51b7d189edfdd425f95a8026c24de8d93b98c1';
+    
+            // Normally we would pull the balance from blockr.
+            // We then use it to populate the balance field of the contract
+            c251t['balance'] = 0.03;
+
+            var c251t_blockr = {
+                "status": "success",
+                "data": {
+                    "address": "2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU",
+                    "unspent": [
+                        {
+                            "tx": "deebc555268396f24d46575b56df839316525796497809b476e29d17c1e2c0ef",
+                            "amount": "0.01000000",
+                            "n": 0,
+                            "confirmations": 1,
+                            "script": "a914728b52d98256323232481fa1eff352dfbcb2f78687"
+                        },
+                        {
+                            "tx": "aaf895c26bd32b4fb575b878ad51b7d189edfdd425f95a8026c24de8d93b98c1",
+                            "amount": "0.02000000",
+                            "n": 1,
+                            "confirmations": 1,
+                            "script": "a914728b52d98256323232481fa1eff352dfbcb2f78687"
+                        }
+                    ],
+                    "with_unconfirmed": true
+                },
+                "code": 200,
+                "message": ""
+            };
+            var c251t_unspent_txes = c251t_blockr['data']['unspent'];
+
+            var c251t_tx_hex = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+            var c251t_tx_hex_2 = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+            assert(c251t_tx_hex != c251t_tx_hex_2, 'Hex should be different each time, due to randomness in signatures');
+            
+            //console.log("Made hex:");
+            //console.log(c251t_tx_hex);
+
+            // Sending this resulted in:
+            // txid: '5b834f6c1d750f60deec7c83da918832d55f9c290429c838df734f9ed2a32a3c'
+            // raw tx: '0100000001efc0e2c1179de276b4097849965752169383df565b57464df296832655c5ebde00000000fd2501004730440220795bf7bc4529f2ffcdd625d9eb2e3769b9ce3eee7cca2b0d6c868bbc1ea34dd502206dc62551a96f9c43f4e0eaa288db65a27efd9dc529c45b2d2485f1966ce205ca01473044022003fcb9e1eeac11fd4c1a2696cdcdc2f1f1e81e1501cc5d56113d18888986df800220290d43ce410bd445b3ea25916eb4799ed702dfb9394bf954442d13213c6523c601514c9163522103b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad32103ef92fd0593af4e10de665d1b25703a76af84349becdf6830b290a010db83746052ae6752210213e0a3f741cd305571366ee3d30bfd819bd95b6f0d8dea0ee13a10dc3f6cf4e62103ead85d26a8339abffabe420a5cc23d9a12a0d005a7d248c80c0d43cf969236e352ae68ffffffff01301b0f00000000001976a9147906f703d0774e8f4b2fb0b716b6352e86687dfc88ac00000000'
 
         }
 
         function store_contract(c, is_update) {
 
-            console.log("storing:");
-            console.log(c);
+            //console.log("storing:");
+            //console.log(c);
             contract_store = {
                 'contracts': {},
                 'default': null
@@ -802,9 +879,7 @@ Play with it if you like, but don't put in any serious money.
             if (key_json_str) {
                 //console.log("got key store");
                 var key_store = JSON.parse(key_json_str);
-console.log(key_store);
                 if (key_store['seeds'][seed]) {
-console.log("returning from seed");
                     return key_store['seeds'][seed];
                 } 
             }
@@ -814,7 +889,6 @@ console.log("returning from seed");
 
         function handle_mnemonic_change(inp) {
 
-console.log("running seed change handler");
             /* 
             Possiblities:
             - empty mnemonic
@@ -841,16 +915,13 @@ console.log("running seed change handler");
             if (!ng) {
                 var mne = new Mnemonic(words); 
                 var seed = mne.toHex();
-console.log("looking for seed "+seed);
                 if (load_stored_key(seed)) {
-console.log("got seed "+seed);
                     // already good
                     $('body').addClass('mnemonic-created-and-confirmed');
                     return true;
                 } 
             }
 
-console.log("no seed");
             $('body').removeClass('mnemonic-created-and-confirmed');
             if (ng) {
                 $('#public-key').text('');
@@ -868,7 +939,6 @@ console.log("no seed");
             var mnemonic_text = inp.val();
             var words = mnemonic_text.split(' ');
             if (words.length != 12) {
-console.log("wrong num of words");
                 $('body').removeClass('mnemonic-created-and-confirmed');
                 return false;
             }
@@ -876,22 +946,17 @@ console.log("wrong num of words");
             var mne = new Mnemonic(words); 
             var seed = mne.toHex();
             if (seed == 'ffffffffffffffffffffffffffffffff') {
-console.log("seed failed ");
                 $('body').removeClass('mnemonic-created-and-confirmed');
                 return false;
             }
 
             var k = load_stored_key(seed) || key_for_new_seed(seed);
-console.log("got key:");
-console.log(k);
             k['user_confirmed_ts'] = new Date().getTime();
 
             if (!store_key(k, true)) {
-console.log("store key failed");
                 return false;
             }
 
-console.log("store key ok, continuing");
             $('body').addClass('mnemonic-created-and-confirmed');
             $('#public-key').text(k['pub']);
 
@@ -1035,8 +1100,6 @@ console.log("store key ok, continuing");
 
             // Start populated with the data we have, fetch the rest
             data = c;
-            console.log("display_single_contract");
-            console.log(c);
 
             // Make sure we have at least one of the keys
             url = oracle_api_base + '/fact/' + c['id'] + '/' + oracle_param_string;
@@ -1135,6 +1198,7 @@ console.log("store key ok, continuing");
                                 $('#single-claim-button').unbind('click').click( function() {
                                     var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/address/unspent/'+data['address'] : 'http://btc.blockr.io/api/v1/address/unspent/'+data['address'];
                                     url = url + '?confirmations=0';
+                                    url = url + '&unconfirmed=1'; // unspent seems to need both of these
                                     console.log("fetching unspent:");
                                     $.ajax({
                                         url: url, 
@@ -1142,7 +1206,6 @@ console.log("store key ok, continuing");
                                         dataType: 'json', 
                                         success: function(tx_data) {
                                             var txes = tx_data['data']['unspent'];
-                                            alert(txes.length);
                                             bootbox.prompt( 'What address to do want to send your winnings to?', function(result) {
                                                 if (result !== null) {
                                                     execute_claim(result, c, txes, data['winner_privkey']);
@@ -1214,12 +1277,13 @@ console.log("store key ok, continuing");
         }
 
         function execute_claim(to_addr, c, txes, winner_privkey) {
-            var i;
-            console.log("executing claim");
-            console.log(c);
 
-            console.log("trying to find priv for ");
-            console.log(c['yes_user_pubkey']);
+            var i;
+            //console.log("executing claim");
+            //console.log(c);
+
+            //console.log("trying to find priv for ");
+            //console.log(c['yes_user_pubkey']);
             var user_privkey = stored_priv_for_pub(c['yes_user_pubkey']);
             if (user_privkey == null) {
                 user_privkey = stored_priv_for_pub(c['no_user_pubkey']);
@@ -1227,82 +1291,12 @@ console.log("store key ok, continuing");
             if (user_privkey == null) {
                 return false;
             }
-            var network = c['is_testnet'] ? bitcore.networks['testnet'] : bitcore.networks['livenet'];
 
             // TODO: This creates an outgoing transaction for each incoming transaction.
             // We should really make one single transaction for all of them.
             for (i=0; i < txes.length; i++) {
-                var tx = txes[i];
-                console.log(tx);
-                var n = tx['n'];
-                var txid = tx['tx'];
-                var amount = tx['amount'];
-                //console.log(tx);
-
-                //alert('Next step: make tx for '+n+','+txid+','+amount);
-                var utxos2 = [
-                {
-                    address: c['address'],
-                    txid: tx['tx'],
-                    vout: tx['n'],
-                    ts: 1396375187,
-                    scriptPubKey: tx['script'],
-                    amount: amount,
-                    confirmations: 1
-                }
-                ];
-
-                var pubkeys = [
-                    [ c['yes_user_pubkey'], c['yes_pubkey'] ],
-                    [ c['no_user_pubkey'], c['no_pubkey'] ]
-                ];
-                console.log("using pubkeys:");
-                console.log(pubkeys);
-
-                var opts = {network: network, nreq:[2,2], pubkeys:pubkeys};
-                var fee = 10000 / 100000000;
-
-                outs = [{address:to_addr, amount:(amount-fee)}];
-                console.log("outs:");
-                console.log(outs);
-
-                var hashMap = {};
-                hashMap[ c['address'] ] = redeem_script(c);
-
-                //var privs = [winner_privkey, 'HERE'];
-                //var privs = [winner_privkey];
-                console.log(winner_privkey);
-
-                var b = new bitcore.TransactionBuilder(opts);
-                b.setUnspent(utxos2);
-                b.setHashToScriptMap(hashMap);
-                b.setOutputs(outs);
-
-                console.log("user_privkey:");
-                console.log(user_privkey);
-
-                console.log("winner_privkey:");
-                console.log(winner_privkey);
-
-                var user_wk = new bitcore.WalletKey({ network: network });
-                user_wk.fromObj( {
-                    priv: user_privkey,
-                });
-                var user_wk_obj = user_wk.storeObj();
-                var user_privkey_wif = user_wk_obj.priv;
-
-                var winner_wk = new bitcore.WalletKey({ network: network });
-                winner_wk.fromObj( {
-                    priv: winner_privkey,
-                });
-                var winner_wk_obj = winner_wk.storeObj();
-                var winner_privkey_wif = winner_wk_obj.priv;
-
-                b.sign([user_privkey_wif, winner_privkey_wif]);
-                //b.sign([winner_privkey, winner_privkey]);
-                tx = b.build();
-                var txHex =  tx.serialize().toString('hex');
-                console.log(txHex);
+                
+                var txHex = hex_for_claim_execution(to_addr, user_privkey, winner_privkey, txes[i], c); 
 
                 // For now our spending transaction is non-standard, so we have to send to eligius.
                 // Hopefully this will be fixed in bitcoin core fairly soon, and we can use same the blockr code for testnet.
@@ -1331,22 +1325,86 @@ console.log("store key ok, continuing");
                         dataType: 'json', 
                     });
                 }
-
-
-                /*
-                console.log('Builder:');
-                console.log('\tSignatures:' + tx.countInputMissingSignatures(0) );
-                console.log('\t#isFullySigned:' + b.isFullySigned() );
-
-                console.log('TX:');
-                console.log('\t #isComplete:' + tx.isComplete() ); 
-
-                var txHex =  tx.serialize().toString('hex');
-                alert(txHex);
-                return;
-                */
-
             }
+        }
+
+        function hex_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c) {
+
+            var network = c['is_testnet'] ? bitcore.networks['testnet'] : bitcore.networks['livenet'];
+
+            console.log(tx);
+            var n = tx['n'];
+            var txid = tx['tx'];
+            var amount = tx['amount'];
+            //console.log(tx);
+
+            //alert('Next step: make tx for '+n+','+txid+','+amount);
+            var utxos2 = [
+            {
+                address: c['address'],
+                txid: tx['tx'],
+                vout: tx['n'],
+                ts: 1396375187,
+                scriptPubKey: tx['script'],
+                amount: amount,
+                confirmations: 1
+            }
+            ];
+
+            var pubkeys = [
+                [ c['yes_user_pubkey'], c['yes_pubkey'] ],
+                [ c['no_user_pubkey'], c['no_pubkey'] ]
+            ];
+            console.log("using pubkeys:");
+            console.log(pubkeys);
+
+            var opts = {network: network, nreq:[2,2], pubkeys:pubkeys};
+            var fee = 10000 / 100000000;
+
+            outs = [{address:to_addr, amount:(amount-fee)}];
+            console.log("outs:");
+            console.log(outs);
+
+            var hashMap = {};
+            hashMap[ c['address'] ] = redeem_script(c);
+
+            //var privs = [winner_privkey, 'HERE'];
+            //var privs = [winner_privkey];
+            console.log(winner_privkey);
+
+            var b = new bitcore.TransactionBuilder(opts);
+            b.setUnspent(utxos2);
+            b.setHashToScriptMap(hashMap);
+            b.setOutputs(outs);
+
+            console.log("user_privkey:");
+            console.log(user_privkey);
+
+            console.log("winner_privkey:");
+            console.log(winner_privkey);
+
+            var user_wk = new bitcore.WalletKey({ network: network });
+            user_wk.fromObj( {
+                priv: user_privkey,
+            });
+            var user_wk_obj = user_wk.storeObj();
+            var user_privkey_wif = user_wk_obj.priv;
+
+            var winner_wk = new bitcore.WalletKey({ network: network });
+            winner_wk.fromObj( {
+                priv: winner_privkey,
+            });
+            var winner_wk_obj = winner_wk.storeObj();
+            var winner_privkey_wif = winner_wk_obj.priv;
+
+            b.sign([user_privkey_wif, winner_privkey_wif]);
+            //b.sign([winner_privkey, winner_privkey]);
+            tx = b.build();
+            var txHex =  tx.serialize().toString('hex');
+            console.log(txHex);
+
+            return txHex;
+
         }
  
         function testnet_setting_to_prefix(is_testnet) {
@@ -1442,6 +1500,8 @@ console.log("store key ok, continuing");
                                 var winner_privkey = w.privKey.private.toString('hex');
                                console.log(c); 
                                 var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'http://btc.blockr.io/api/v1/address/unspent/'+addr;
+                                url = url + '?confirmations=0';
+                                url = url + '&unconfirmed=1'; // unspent seems to need both of these
                                 $.ajax({
                                     url: url, 
                                     type: 'GET',
@@ -1581,35 +1641,6 @@ console.log("store key ok, continuing");
             //console.log("redeem script:");
             //console.log(p2shScript);
             return p2shScript;
-
-            //var p2shAddress = info.address;
-            //console.log("p2sh script was:");
-            //console.log(p2shScript);
-
-            //console.log("in redeem script");
-            //console.log(data);
-
-            var script = new bitcore.Script();
-
-            script.writeOp(Opcode.map.OP_IF);
-
-            script.writeN(2);
-            script.writeBytes(new bitcore.Buffer(data['yes_user_pubkey'], 'hex'));
-            script.writeBytes(new bitcore.Buffer(data['yes_pubkey'], 'hex'));
-            script.writeN(2);
-            script.writeOp(Opcode.map.OP_CHECKMULTISIG);
-
-            script.writeOp(Opcode.map.OP_ELSE);
-
-            script.writeN(2);
-            script.writeBytes(new bitcore.Buffer(data['no_user_pubkey'], 'hex'));
-            script.writeBytes(new bitcore.Buffer(data['no_pubkey'], 'hex'));
-            script.writeN(2);
-            script.writeOp(Opcode.map.OP_CHECKMULTISIG);
-
-            script.writeOp(Opcode.map.OP_ENDIF);
-
-            return script;
 
         }
 
