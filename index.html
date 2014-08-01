@@ -28,6 +28,8 @@
 
     #goal-view-section .contract-info { float:right }
 
+    body:not(.mnemonic-usable) li.needs-mnemonic-usable a { color:gray }
+
     #goal-view-section:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
     #goal-view-section:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
     #goal-view-section:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
@@ -102,12 +104,12 @@
                     <ul class="nav" id="side-menu">
                         <li class="list-view"><a href="#secret">Create a secret</a></li>
                         <li class="individuals-only list-view"><a href="#connect">Connect to RunKeeper</a></li>
-                        <li class="individuals-only list-view"><a href="#set-goal">Make a pact</a></li>
+                        <li class="individuals-only list-view needs-mnemonic-usable"><a href="#set-goal">Make a pact</a></li>
                         <!--
                         <li class="charities-only list-view"><a href="#import">Load pacts</a></li>
                         -->
-                        <li class="individuals-only list-view"><a href="#claim">List pacts</a></li>
-                        <li class="charities-only list-view"><a href="#claim">Transfer funds</a></li>
+                        <li class="individuals-only list-view needs-mnemonic-usable"><a href="#claim">List pacts</a></li>
+                        <li class="charities-only list-view needs-mnemonic-usable"><a href="#claim">Transfer funds</a></li>
                     </ul>
                     <!-- /#side-menu -->
                 </div>
@@ -146,9 +148,9 @@ Play with it if you like, but don't put in any serious money.
               <form class="form-horizontal">
                 <fieldset>
                   <div class="form-group">
-                    <label for="seed" class="col-md-2 control-label">Seed</label>
+                    <label for="mnemonic" class="col-md-2 control-label">Mnemonic</label>
                     <div class="col-md-10">
-                      <input type="text" class="form-control" id="seed" placeholder="Seed">
+                      <input type="text" class="form-control" id="mnemonic" placeholder="Mnemonic">
                       <br />
                       <input id="is-testnet" name="is-testnet" value="1" type="checkbox"> Testnet
                     </div>
@@ -481,6 +483,7 @@ Play with it if you like, but don't put in any serious money.
 
     <script src="js/bitcore.js"></script>
     <script src="js/bitcore_monkey_patches.js"></script>
+    <script src="js/mnemonic.js"></script>
     <script src="js/bootbox.min.js"></script>
     <script>
     $(function() {
@@ -541,6 +544,35 @@ Play with it if you like, but don't put in any serious money.
 
         }
 
+        function test_mnemonic_handling() {
+
+            var mne = new Mnemonic(128);
+            var words = mne.toWords();
+            var mne_hex = mne.toHex();
+            assert(words.length == 12, '128-bit mnemonic makes 12 words');
+
+            var mne2 = new Mnemonic(128);
+            var mne2_hex = mne2.toHex()
+
+            assert( (mne_hex != mne2_hex), 'Mnemonic makes a different hex result every time');
+
+            var fixed_words = ["love", "ache", "bother", "cross", "fought", "swim", "brave", "rare", "hey", "neither", "paint", "bought"];
+
+            var fixed_hex = '19958d7ae02536984de76050569555c1';
+            var fixed_mne = new Mnemonic(fixed_words);
+            assert( fixed_mne.toHex() == fixed_hex, 'Mnemonic loaded from previous output returns the same hex as before');
+
+            var round_trip_mne = seed_to_mnemonic(fixed_hex);
+            assert( fixed_words.join(' ') == round_trip_mne.toWords().join(' '), 'Mnemonic can be recreated from seed');
+
+            var dodgy_words = [
+                'asdf1', 'asdf2', 'asdf3', 'asdf4', 'asdf5', 'asdf6', 'asdf7', 'asdf8', 'asdf9', 'asdf10', 'asdf11', 'asdf12'
+            ];
+            var dodgy_mne = new Mnemonic(dodgy_words);
+            assert(('ffffffffffffffffffffffffffffffff' == dodgy_mne.toHex()), 'Fed words it does not understand Mnemonic returns ffffffffffffffffffffffffffffffff');
+            
+        }
+
         function test_hash_to_contract() {
 
             var a_pub = '02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28';
@@ -567,6 +599,37 @@ Play with it if you like, but don't put in any serious money.
 
             test_format_sanitization();
             test_hash_to_contract();
+            test_mnemonic_handling();
+            //test_p2sh_address_creation();
+
+        }
+
+        // From
+        // https://github.com/ggozad/mnemonic.js/issues/1
+        function seed_to_mnemonic(hex_seed) {
+            var random = [];
+            for(var i=0;i<hex_seed.length;i++){
+                var integer = parseInt(hex_seed.slice(8*i,i*8+8),16);
+                if (!isNaN(integer) ){
+                    random.push(integer);
+                }
+            }
+            var m  = new Mnemonic();
+            m.random = random;
+            return m;
+        }
+
+        function test_transaction_cycle() {
+
+            // An old fact to test on, with a published key
+            // The following comes directly from 
+            // https://www.realitykeys.com/api/v1/blockchain/2/?accept_terms_of_service=current
+            var c = {"no_pubkey": "037545a3b495208ba67328773361ca5c0037352839d3c634251b540e91b61e0fd8", "chain": "XBT", "comparison": "ge", "settlement_date": "2014-01-10", "objection_period_secs": 604800, "human_resolution_scheduled_datetime": null, "address": "1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX", "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-01-10 00:00:00", "created_datetime": "2014-01-09 03:43:16", "winner": "Yes", "value": "1000", "id": 2, "source": "blockchain", "yes_pubkey": "02585eca9b441b0e17b12145f2d73ac7dd8da1eae7cdb4022db6b78f224db3bdc9", "objection_fee_satoshis_due": 1000000, "winner_privkey": "Kxy3FHDN8KYG6Q6CQ42vzqQywduhp2SmjmQWK99RRh2UvRFdgdie", "which_total": "totalreceived"};
+            c['yes_user_pubkey'] = '02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28';
+            c['no_user_pubkey'] = '0254694936f88db742069686bd964020e3c453120044ae35fb2a91ed556b93e1e7';
+            c['is_testnet'] = true;
+
+
 
         }
 
@@ -725,14 +788,50 @@ Play with it if you like, but don't put in any serious money.
 
         }
 
-        function handle_seed_change(inp) {
+        function load_stored_key(seed) {
 
-            var seed = inp.val();
+            key_json_str = localStorage.getItem('key_store');
+            if (key_json_str) {
+                //console.log("got key store");
+                var key_store = JSON.parse(key_json_str);
+                if (key_store['seeds'][seed]) {
+                    return key_store['seeds'][seed];
+                } 
+            }
+            return null;
+
+        }
+
+        function handle_mnemonic_change(inp) {
+
+            var mnemonic_text = inp.val();
+            var words = mnemonic_text.split(' ');
+            if (words.length != 12) {
+                $('body').removeClass('mnemonic-usable');
+                return false;
+            }
+
+            var mne = new Mnemonic(words); 
+            var seed = mne.toHex();
+            if (seed == 'ffffffffffffffffffffffffffffffff') {
+                $('body').removeClass('mnemonic-usable');
+                return false;
+            }
+
             var is_testnet = $('#is-testnet').is(':checked');
-            k = key_for_seed(seed, is_testnet);
-            //console.log("got k");
-            //console.log(k);
-            store_key(k);
+
+            var k = load_stored_key(seed); 
+            if (!k) {
+                k = key_for_new_seed(seed, is_testnet);
+                //console.log("got k");
+                //console.log(k);
+                if (!store_key(k)) {
+                    return false;
+                }
+            }
+
+            $('body').addClass('mnemonic-usable');
+
             $('#public-key').text(k['pub']);
 
         }
@@ -770,7 +869,7 @@ Play with it if you like, but don't put in any serious money.
         function hash_to_contract(import_hash) {
 
             if (!/^#.*-.*-\d+-t?btc$/.test(import_hash)) {
-                console.log('import hash wrongly formatted, not even going to try to parse it');
+                //console.log('import hash wrongly formatted, not even going to try to parse it');
                 return null;
             }
 
@@ -1374,14 +1473,13 @@ Play with it if you like, but don't put in any serious money.
 
         }
 
-        function key_for_seed(seed, is_testnet) {
+        function key_for_new_seed(seed, is_testnet) {
 
             var privateKey = bitcore.util.sha256(seed);
 
             var key = new bitcore.Key();
             key.private = privateKey;
             key.regenerateSync();
-
 
             var hash = bitcore.util.sha256ripe160(key.public);
             var address_version = is_testnet ? bitcore.networks['testnet'].addressVersion : bitcore.networks['livenet'].addressVersion;
@@ -1395,7 +1493,8 @@ Play with it if you like, but don't put in any serious money.
                 'version': '1.0',
                 'priv': key.private.toString('hex'),
                 'pub': key.public.toString('hex'),
-                'addr': new bitcore.Address(address_version, hash).toString()
+                'addr': new bitcore.Address(address_version, hash).toString(),
+                'user_confirmed': null
             };
 
         }
@@ -1548,11 +1647,26 @@ Play with it if you like, but don't put in any serious money.
                 {"dateFormat": 'yy-mm-dd' }
             );
 
-            $('#seed').change( function() {
-                handle_seed_change($('#seed'));
+            //console.log("trying to load default key");
+            if (default_seed = load_default_key()) {
+                console.log("got default seed:");
+                console.log(default_seed);
+                $('#mnemonic').val(seed_to_mnemonic(default_seed['seed']).toWords().join(' '));
+                $('#is-testnet').prop('checked', default_seed['is_testnet']);
+                $('#public-key').text(default_seed['pub']);
+            }
+
+            if ($('#mnemonic').val() == '') {
+                var mne = new Mnemonic(128);
+                $('#mnemonic').val(mne.toWords().join(' '));
+                handle_mnemonic_change($('#mnemonic'));
+            }
+
+            $('#mnemonic').change( function() {
+                handle_mnemonic_change($('#mnemonic'));
             });
             $('#is-testnet').change( function() {
-                handle_seed_change($('#seed'));
+                handle_mnemonic_change($('#mnemonic'));
             });
 
             if ($('#charity-select').val() != 'other') {
@@ -1634,16 +1748,6 @@ Play with it if you like, but don't put in any serious money.
             });
 
             $('#claim-form').find('.contract-data-template').hide();
-
-            //console.log("trying to load default key");
-            if (default_seed = load_default_key()) {
-                //console.log("got default seed:");
-                //console.log(default_seed);
-                $('#seed').val(default_seed['seed']);
-                $('#is-testnet').prop('checked', default_seed['is_testnet']);
-                $('#public-key').text(default_seed['pub']);
-            }
-
             update_submittable();
 
             display_contracts();
