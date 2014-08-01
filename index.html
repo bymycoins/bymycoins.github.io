@@ -28,7 +28,8 @@
 
     #goal-view-section .contract-info { float:right }
 
-    body:not(.mnemonic-usable) li.needs-mnemonic-usable a { color:gray }
+    body:not(.mnemonic-created-and-confirmed) li.needs-mnemonic-created-and-confirmed a { color:gray }
+    body.mnemonic-created-and-confirmed #confirm-mnemonic-button { display: none }
 
     #goal-view-section:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
     #goal-view-section:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
@@ -104,12 +105,12 @@
                     <ul class="nav" id="side-menu">
                         <li class="list-view"><a href="#secret">Create a secret</a></li>
                         <li class="individuals-only list-view"><a href="#connect">Connect to RunKeeper</a></li>
-                        <li class="individuals-only list-view needs-mnemonic-usable"><a href="#set-goal">Make a pact</a></li>
+                        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed"><a href="#set-goal">Make a pact</a></li>
                         <!--
                         <li class="charities-only list-view"><a href="#import">Load pacts</a></li>
                         -->
-                        <li class="individuals-only list-view needs-mnemonic-usable"><a href="#claim">List pacts</a></li>
-                        <li class="charities-only list-view needs-mnemonic-usable"><a href="#claim">Transfer funds</a></li>
+                        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed"><a href="#claim">List pacts</a></li>
+                        <li class="charities-only list-view needs-mnemonic-created-and-confirmed"><a href="#claim">Transfer funds</a></li>
                     </ul>
                     <!-- /#side-menu -->
                 </div>
@@ -148,11 +149,11 @@ Play with it if you like, but don't put in any serious money.
               <form class="form-horizontal">
                 <fieldset>
                   <div class="form-group">
-                    <label for="mnemonic" class="col-md-2 control-label">Mnemonic</label>
+                    <label for="mnemonic" class="col-md-2 control-label">Secret</label>
                     <div class="col-md-10">
-                      <input type="text" class="form-control" id="mnemonic" placeholder="Mnemonic">
+                      <input type="text" class="form-control" id="mnemonic" placeholder="Your Secret">
                       <br />
-                      <input id="is-testnet" name="is-testnet" value="1" type="checkbox"> Testnet
+                      <input type="button" class="btn btn-primary" id="confirm-mnemonic-button" value="I have made a copy of these words, and I will keep them secret." />
                     </div>
                   </div>
                   <div class="form-group">
@@ -279,6 +280,12 @@ Play with it if you like, but don't put in any serious money.
                      <label for="charity-public-key" class="col-md-2 control-label">Charity Public Key</label>
                     <div class="col-md-8">
                       <input type="text" class="form-control" id="charity-public-key" placeholder="Charity Public Key">
+                    </div>
+                  </div>
+                  <div class="form-group" id="is-testnet-group">
+                     <label for="is-testnet" class="col-md-2 control-label">Test network</label>
+                    <div class="col-md-8">
+                      <input id="is-testnet" name="is-testnet" value="1" type="checkbox"> Testnet
                     </div>
                   </div>
                   <div class="form-group">
@@ -739,16 +746,17 @@ Play with it if you like, but don't put in any serious money.
                 'default': null
             }
 
-            var seed_id = k['seed_id'];
+            var seed = k['seed'];
             var key_json_str = localStorage.getItem('key_store');
             if (key_json_str) {
                 key_store = JSON.parse(key_json_str);
             }
-            key_store['seeds'][seed_id] = k;
-            key_store['default'] = seed_id;
+            key_store['seeds'][seed] = k;
+            key_store['default'] = seed;
             //console.log(JSON.stringify(key_store));
 
             localStorage.setItem('key_store', JSON.stringify(key_store));
+            return true;
 
         }
 
@@ -794,7 +802,9 @@ Play with it if you like, but don't put in any serious money.
             if (key_json_str) {
                 //console.log("got key store");
                 var key_store = JSON.parse(key_json_str);
+console.log(key_store);
                 if (key_store['seeds'][seed]) {
+console.log("returning from seed");
                     return key_store['seeds'][seed];
                 } 
             }
@@ -804,34 +814,85 @@ Play with it if you like, but don't put in any serious money.
 
         function handle_mnemonic_change(inp) {
 
+console.log("running seed change handler");
+            /* 
+            Possiblities:
+            - empty mnemonic
+            - invalid mnemonic
+            - existing mnemonic
+            - new mnemonic 
+            */
+
+            var ng = false;
+
+            var mnemonic_text = inp.val();
+            if (mnemonic_text == '') {
+                ng = true;
+            } 
+
+            var words;
+            if (!ng) {
+                words = mnemonic_text.split(' ');
+                if (words.length != 12) {
+                    ng = true;
+                }
+            }
+
+            if (!ng) {
+                var mne = new Mnemonic(words); 
+                var seed = mne.toHex();
+console.log("looking for seed "+seed);
+                if (load_stored_key(seed)) {
+console.log("got seed "+seed);
+                    // already good
+                    $('body').addClass('mnemonic-created-and-confirmed');
+                    return true;
+                } 
+            }
+
+console.log("no seed");
+            $('body').removeClass('mnemonic-created-and-confirmed');
+            if (ng) {
+                $('#public-key').text('');
+                $('#confirm-mnemonic-button').attr('disabled', 'disabled');
+            } else {
+                $('#confirm-mnemonic-button').removeAttr('disabled');
+            } 
+
+            return false;
+
+        }
+
+        function handle_mnemonic_confirm(inp) {
+
             var mnemonic_text = inp.val();
             var words = mnemonic_text.split(' ');
             if (words.length != 12) {
-                $('body').removeClass('mnemonic-usable');
+console.log("wrong num of words");
+                $('body').removeClass('mnemonic-created-and-confirmed');
                 return false;
             }
 
             var mne = new Mnemonic(words); 
             var seed = mne.toHex();
             if (seed == 'ffffffffffffffffffffffffffffffff') {
-                $('body').removeClass('mnemonic-usable');
+console.log("seed failed ");
+                $('body').removeClass('mnemonic-created-and-confirmed');
                 return false;
             }
 
-            var is_testnet = $('#is-testnet').is(':checked');
+            var k = load_stored_key(seed) || key_for_new_seed(seed);
+console.log("got key:");
+console.log(k);
+            k['user_confirmed_ts'] = new Date().getTime();
 
-            var k = load_stored_key(seed); 
-            if (!k) {
-                k = key_for_new_seed(seed, is_testnet);
-                //console.log("got k");
-                //console.log(k);
-                if (!store_key(k)) {
-                    return false;
-                }
+            if (!store_key(k, true)) {
+console.log("store key failed");
+                return false;
             }
 
-            $('body').addClass('mnemonic-usable');
-
+console.log("store key ok, continuing");
+            $('body').addClass('mnemonic-created-and-confirmed');
             $('#public-key').text(k['pub']);
 
         }
@@ -1473,28 +1534,21 @@ Play with it if you like, but don't put in any serious money.
 
         }
 
-        function key_for_new_seed(seed, is_testnet) {
+        function key_for_new_seed(seed) {
 
             var privateKey = bitcore.util.sha256(seed);
 
             var key = new bitcore.Key();
             key.private = privateKey;
             key.regenerateSync();
-
             var hash = bitcore.util.sha256ripe160(key.public);
-            var address_version = is_testnet ? bitcore.networks['testnet'].addressVersion : bitcore.networks['livenet'].addressVersion;
-
-            seed_id = address_version + '-' + seed;
 
             return {
                 'seed': seed,
-                'seed_id': seed_id,
-                'is_testnet': is_testnet,
                 'version': '1.0',
                 'priv': key.private.toString('hex'),
                 'pub': key.public.toString('hex'),
-                'addr': new bitcore.Address(address_version, hash).toString(),
-                'user_confirmed': null
+                'user_confirmed_ts': null
             };
 
         }
@@ -1659,7 +1713,6 @@ Play with it if you like, but don't put in any serious money.
             if ($('#mnemonic').val() == '') {
                 var mne = new Mnemonic(128);
                 $('#mnemonic').val(mne.toWords().join(' '));
-                handle_mnemonic_change($('#mnemonic'));
             }
 
             $('#mnemonic').change( function() {
@@ -1668,6 +1721,15 @@ Play with it if you like, but don't put in any serious money.
             $('#is-testnet').change( function() {
                 handle_mnemonic_change($('#mnemonic'));
             });
+
+            $('#confirm-mnemonic-button').unbind('click').click( function() {
+                handle_mnemonic_confirm($('#mnemonic'));
+                return false;
+            });
+
+            // Always run the change handler on init.
+            // This will toggle the body class to show if we're ready to do other stuff
+            handle_mnemonic_change($('#mnemonic'));
 
             if ($('#charity-select').val() != 'other') {
                 $('#charity-public-key-group').hide();
