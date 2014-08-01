@@ -2,7 +2,6 @@ $(function() {
 
     var bitcore = require('bitcore');
 
-    //var oracle_base = 'http://beech.lab.socialminds.jp:8000';
     var oracle_base = 'https://www.realitykeys.com'
     var oracle_api_base = oracle_base + '/api/v1';
     var oracle_view_base = oracle_base + '/fact/';
@@ -693,7 +692,7 @@ $(function() {
 
                 //$('#single-claim-button').unbind('click').text('Checking balance...');
                 // Now we have the address, we can get the balance
-                var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/address/balance/'+data['address'] : 'http://btc.blockr.io/api/v1/address/balance/'+data['address'];
+                var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/balance/'+data['address'] : 'https://btc.blockr.io/api/v1/address/balance/'+data['address'];
                 url = url + '?confirmations=0';
                 $.ajax({
                     url: url, 
@@ -705,7 +704,7 @@ $(function() {
                         $('#goal-view-balance-container').show();
                         if (balance > 0 && i_won && data['winner_privkey']) {
                             $('#single-claim-button').unbind('click').click( function() {
-                                var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/address/unspent/'+data['address'] : 'http://btc.blockr.io/api/v1/address/unspent/'+data['address'];
+                                var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+data['address'] : 'https://btc.blockr.io/api/v1/address/unspent/'+data['address'];
                                 url = url + '?confirmations=0';
                                 url = url + '&unconfirmed=1'; // unspent seems to need both of these
                                 console.log("fetching unspent:");
@@ -816,7 +815,7 @@ $(function() {
                 eligius_cross_domain_post(txHex);
             } else {
                 // this will always be testnet until the happy day when bitcore makes our transactions standard
-                var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/tx/push' : 'http://btc.blockr.io/api/v1/tx/push';
+                var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/tx/push' : 'https://btc.blockr.io/api/v1/tx/push';
                 $.ajax({
                     type: "POST",
                     url: url,
@@ -952,7 +951,7 @@ $(function() {
         var row = frm.find('.contract-data-template').clone().removeClass('contract-data-template').addClass('contract-data-row').attr('data-address',c['address']);
         var lnk = $('<a>');
         if (c['is_testnet']) {
-            lnk.attr('href', 'http://tbtc.blockr.io/address/info/' + format_address(c['address']));
+            lnk.attr('href', 'https://tbtc.blockr.io/address/info/' + format_address(c['address']));
         } else {
             lnk.attr('href', 'https://blockchain.info/address/' + format_address(c['address']));
         }
@@ -1008,7 +1007,7 @@ $(function() {
                             w.fromObj({ priv: winner_privkey_wif });
                             var winner_privkey = w.privKey.private.toString('hex');
                            console.log(c); 
-                            var url = c['is_testnet'] ? 'http://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'http://btc.blockr.io/api/v1/address/unspent/'+addr;
+                            var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'https://btc.blockr.io/api/v1/address/unspent/'+addr;
                             url = url + '?confirmations=0';
                             url = url + '&unconfirmed=1'; // unspent seems to need both of these
                             $.ajax({
@@ -1084,7 +1083,7 @@ $(function() {
             return false;
         }
 
-        var url = c.is_testnet ? 'http://tbtc.blockr.io/api/v1/address/balance/' + addr+'?confirmations=0' : 'http://btc.blockr.io/api/v1/address/balance/' + addr+'?confirmations=0';
+        var url = c.is_testnet ? 'https://tbtc.blockr.io/api/v1/address/balance/' + addr+'?confirmations=0' : 'https://btc.blockr.io/api/v1/address/balance/' + addr+'?confirmations=0';
         $.ajax({
             url: url, 
             type: 'GET',
