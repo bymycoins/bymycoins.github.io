@@ -195,7 +195,7 @@ Play with it if you like, but don't put in any serious money.
                       </div>
                       <div class="athlete-connected">
                       <p>
-                      You are connected as <span id="connected-athlete-display"></span>.
+                      You are connected as <span class="badge" id="connected-athlete-display"></span>.
                       </p>
                       <p>
                       You can disconnect from <a href="http://runkeeper.com/settings/apps">the settings page at runkeeper.com</a>.
@@ -283,9 +283,9 @@ Play with it if you like, but don't put in any serious money.
                     </div>
                   </div>
                   <div class="form-group" id="is-testnet-group">
-                     <label for="is-testnet" class="col-md-2 control-label">Test network</label>
+                     <label for="is-testnet" class="col-md-2 control-label">Network</label>
                     <div class="col-md-8">
-                      <input id="is-testnet" name="is-testnet" value="1" type="checkbox"> Testnet
+                      <input id="is-testnet" value="1" type="checkbox"> Test network
                     </div>
                   </div>
                   <div class="form-group">
@@ -339,29 +339,27 @@ Play with it if you like, but don't put in any serious money.
     </div>
     <div >
       <div class="panel-body">
-              <form id="claim-form" class="form-horizontal">
-                <fieldset>
-                  <div class="row form-group" style="text-align:center">
-                    <span data-type="funds" class="col-md-1">Funds</span>
-                    <span data-type="user" class="col-md-2">Athlete</span>
-                    <span data-type="activity" class="col-md-2">Activity</span>
-                    <span data-type="goal" class="col-md-1">Goal</span>
-                    <span data-type="settlement_date" class="col-md-2">Date</span>
-                    <span data-type="charity-address" class="col-md-2">Charity</span>
-                    <span data-type="view-button" class="col-md-1">View</span>
-                  </div>
-                  <div class="row form-group contract-data-template"  style="text-align:center">
-                    <span data-type="funds" class="col-md-1"></span>
-                    <span data-type="user" class="col-md-2"></span>
-                    <span data-type="activity" class="col-md-2"></span>
-                    <span data-type="goal" class="col-md-1"></span>
-                    <span data-type="settlement_date" class="col-md-2"></span>
-                    <span data-type="charity-display" class="col-md-2"></span>
-                    <span data-type="view-button" class="col-md-1"><a href="#view-single-goal" class="btn btn-primary action-button view-button">View</a></span>
-                  </div>
+              <table id="claim-form" class="table table-striped">
+                  <tr class="row form-group" style="text-align:center">
+                    <th data-type="funds" class="col-md-1">Funds</th>
+                    <th data-type="user" class="col-md-2">Athlete</th>
+                    <th data-type="activity" class="col-md-2">Activity</th>
+                    <th data-type="goal" class="col-md-1">Goal</th>
+                    <th data-type="settlement_date" class="col-md-2">Deadline</th>
+                    <th data-type="charity-address" class="col-md-2">Charity</th>
+                    <th data-type="view-button" class="col-md-1">View</th>
+                  </tr>
+                  <tr class="row form-group contract-data-template"  style="text-align:center">
+                    <td data-type="funds" class="col-md-1"></td>
+                    <td data-type="user" class="col-md-2"></td>
+                    <td data-type="activity" class="col-md-2"></td>
+                    <td data-type="goal" class="col-md-1"></td>
+                    <td data-type="settlement_date" class="col-md-2"></td>
+                    <td data-type="charity-display" class="col-md-2"></td>
+                    <td data-type="view-button" class="col-md-1"><a href="#view-single-goal" class="btn btn-primary action-button view-button">View</a></td>
+                  </tr>
 
-                </fieldset>
-              </form>
+              </table>
       </div>
     </div>
   </div>
@@ -1355,33 +1353,33 @@ Play with it if you like, but don't put in any serious money.
                 [ c['yes_user_pubkey'], c['yes_pubkey'] ],
                 [ c['no_user_pubkey'], c['no_pubkey'] ]
             ];
-            console.log("using pubkeys:");
-            console.log(pubkeys);
+            //console.log("using pubkeys:");
+            //console.log(pubkeys);
 
             var opts = {network: network, nreq:[2,2], pubkeys:pubkeys};
             var fee = 10000 / 100000000;
 
             outs = [{address:to_addr, amount:(amount-fee)}];
-            console.log("outs:");
-            console.log(outs);
+            //console.log("outs:");
+            //console.log(outs);
 
             var hashMap = {};
             hashMap[ c['address'] ] = redeem_script(c);
 
             //var privs = [winner_privkey, 'HERE'];
             //var privs = [winner_privkey];
-            console.log(winner_privkey);
+            //console.log(winner_privkey);
 
             var b = new bitcore.TransactionBuilder(opts);
             b.setUnspent(utxos2);
             b.setHashToScriptMap(hashMap);
             b.setOutputs(outs);
 
-            console.log("user_privkey:");
-            console.log(user_privkey);
+            //console.log("user_privkey:");
+            //console.log(user_privkey);
 
-            console.log("winner_privkey:");
-            console.log(winner_privkey);
+            //console.log("winner_privkey:");
+            //console.log(winner_privkey);
 
             var user_wk = new bitcore.WalletKey({ network: network });
             user_wk.fromObj( {
@@ -1401,7 +1399,7 @@ Play with it if you like, but don't put in any serious money.
             //b.sign([winner_privkey, winner_privkey]);
             tx = b.build();
             var txHex =  tx.serialize().toString('hex');
-            console.log(txHex);
+            //console.log(txHex);
 
             return txHex;
 
@@ -1734,7 +1732,7 @@ Play with it if you like, but don't put in any serious money.
 
             //console.log("trying to load default key");
             if (default_seed = load_default_key()) {
-                console.log("got default seed:");
+                //console.log("got default seed:");
                 console.log(default_seed);
                 $('#mnemonic').val(seed_to_mnemonic(default_seed['seed']).toWords().join(' '));
                 $('#is-testnet').prop('checked', default_seed['is_testnet']);
@@ -1873,7 +1871,7 @@ Play with it if you like, but don't put in any serious money.
 
         initialize_page();
 
-	run_tests();
+	//run_tests();
 
     });
 
