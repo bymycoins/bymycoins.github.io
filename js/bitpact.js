@@ -1,7 +1,5 @@
-$(function() {
 
     var bitcore = require('bitcore');
-
     var oracle_base = 'https://www.realitykeys.com'
     var oracle_api_base = oracle_base + '/api/v1';
     var oracle_view_base = oracle_base + '/fact/';
@@ -112,6 +110,7 @@ $(function() {
         test_hash_to_contract();
         test_mnemonic_handling();
         test_transaction_cycle();
+        console.log('All tests complete');
 
     }
 
@@ -479,14 +478,22 @@ $(function() {
     }
 
     function import_contracts(import_url) {
-        var url = 'http://rssbridge.org/b/Twitter/Atom/u/edmundedgar/';
+        var pubkey = $('#public-key').text();
+        var url = $('#import-contract-url').val() + pubkey;
         $.ajax({
             url: url, 
             type: 'GET',
-            dataType: 'json', 
+            dataType: 'text', 
             success: function(data) {
-                //console.log(data);
-                alert('ok');
+                var lines = data.split("\n");
+                for (i=0; i<lines.length; i++) {
+                    var l = lines[i];
+                    if (l == '') {
+                        continue;
+                    }
+                    var c = hash_to_contract('#' + l);
+                    import_contract_if_required(c);
+                }
             },
             error: function(data) {
                 console.log("got error from load");
@@ -559,6 +566,51 @@ $(function() {
         return txt;
     }
 
+    // TODO: This ends up duplicating a lot with display_single_contract
+    function import_contract_if_required(c) {
+
+        if (k = stored_priv_for_pub(c['yes_user_pubkey'])) {
+            wins_on = 'Yes';
+        } else if (k = stored_priv_for_pub(c['no_user_pubkey'])) {
+            wins_on = 'No';
+        }  else {
+            return false;
+        }
+
+        // Start populated with the data we have, fetch the rest
+        data = c;
+
+        // Make sure we have at least one of the keys
+        url = oracle_api_base + '/fact/' + c['id'] + '/' + oracle_param_string;
+        console.log("fetching reality keys data:");
+        console.log(url);
+        $.ajax({
+            url: url, 
+            type: 'GET',
+            dataType: 'json', 
+            success: function(data) {
+                data['wins_on'] = wins_on;
+                data['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
+                data['yes_user_pubkey'] = c['yes_user_pubkey'];
+                data['no_user_pubkey'] = c['no_user_pubkey'];
+                data['is_testnet'] = c['is_testnet'];
+                data['address'] = p2sh_address(data);
+
+                if (is_contract_stored(data['address'])) {
+                    return true;
+                }
+
+                store_contract(data);
+                reflect_contract_added(data);
+            },
+            error: function(data) {
+                console.log("got error from fake");
+                console.log(data);
+            }
+        });
+        return false;
+
+    }
 
     function display_single_contract(c) {
 
@@ -568,8 +620,6 @@ $(function() {
         $('#goal-view-reality-key-link-container').hide();
         $('#goal-view-balance').text('');
         $('#goal-view-balance-container').hide();
-
-
 
         // Show a loading section
         $('.view-goal-form-loading').show();
@@ -615,7 +665,7 @@ $(function() {
             dataType: 'json', 
             success: function(data) {
                 data['wins_on'] = wins_on;
-                data['charity_display'] = c['charity_display'];
+                data['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
                 data['yes_user_pubkey'] = c['yes_user_pubkey'];
                 data['no_user_pubkey'] = c['no_user_pubkey'];
                 data['is_testnet'] = c['is_testnet'];
@@ -651,7 +701,7 @@ $(function() {
                     return false;
                 });
 
-                var txt = 'I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
+                var txt = '@bitpact I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
                 txt = txt + ' ' + sharing_url(data, true);
                 $('#tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
@@ -840,7 +890,7 @@ $(function() {
 
         var network = c['is_testnet'] ? bitcore.networks['testnet'] : bitcore.networks['livenet'];
 
-        console.log(tx);
+        //console.log(tx);
         var n = tx['n'];
         var txid = tx['tx'];
         var amount = tx['amount'];
@@ -1243,7 +1293,7 @@ $(function() {
         //console.log("trying to load default key");
         if (default_seed = load_default_key()) {
             //console.log("got default seed:");
-            console.log(default_seed);
+            //console.log(default_seed);
             $('#mnemonic').val(seed_to_mnemonic(default_seed['seed']).toWords().join(' '));
             $('#is-testnet').prop('checked', default_seed['is_testnet']);
             $('#public-key').text(default_seed['pub']);
@@ -1374,13 +1424,16 @@ $(function() {
 
         // If there's a hash with the contract details, go straight to that contract
         if (document.location.hash) {
-            view_contract_if_in_hash(document.location.hash);
+            if (document.location.hash == '#charity') {
+                $('body').addClass('for-charities').removeClass('for-individuals');
+                use_case_toggle('charity');
+                $('#page-individual-switch').removeClass('active');
+                $('#page-charity-switch').removeClass('active');
+            } else {
+                view_contract_if_in_hash(document.location.hash);
+            }
         }
 
     }
 
-    initialize_page();
 
-//run_tests();
-
-});
