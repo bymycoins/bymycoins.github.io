@@ -569,11 +569,8 @@
     // TODO: This ends up duplicating a lot with display_single_contract
     function import_contract_if_required(c) {
 
-        if (k = stored_priv_for_pub(c['yes_user_pubkey'])) {
-            wins_on = 'Yes';
-        } else if (k = stored_priv_for_pub(c['no_user_pubkey'])) {
-            wins_on = 'No';
-        }  else {
+        var wins_on = wins_on_for_stored_keys(c);
+        if (wins_on == 'None') {
             return false;
         }
 
@@ -612,6 +609,15 @@
 
     }
 
+    function wins_on_for_stored_keys(c) {
+        if (stored_priv_for_pub(c['yes_user_pubkey'])) {
+            return 'Yes';
+        } else if (stored_priv_for_pub(c['no_user_pubkey'])) {
+            return 'No';
+        }  
+        return 'None'
+    }
+
     function display_single_contract(c) {
 
         //$('body').removeClass('for-list').addClass('for-single');
@@ -634,17 +640,16 @@
         if (!c['charity_display']) {
             c['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
         }
-        var wins_on = ''; // Empty string means not ours.
-        var k;
-        if (k = stored_priv_for_pub(c['yes_user_pubkey'])) {
-            wins_on = 'Yes';
+
+        var wins_on = wins_on_for_stored_keys(c);
+        if (wins_on == 'Yes') {
             $('#goal-view-section').addClass('wins-on-yes').removeClass('wins-on-no').removeClass('wins-on-none');
-        } else if (k = stored_priv_for_pub(c['no_user_pubkey'])) {
-            wins_on = 'No';
+        } else if (wins_on == 'No') {
             $('#goal-view-section').addClass('wins-on-no').removeClass('wins-on-yes').removeClass('wins-on-none');
         }  else {
             $('#goal-view-section').addClass('wins-on-none').removeClass('wins-on-yes').removeClass('wins-on-no');
         }
+
 
         $('#view-goal-cancel').unbind('click').click( function() {
             //$('body').removeClass('for-single').addClass('for-list');
