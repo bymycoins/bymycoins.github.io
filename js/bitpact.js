@@ -217,6 +217,17 @@
         assert(81 == chunks[3].toString(), 'after sigs we have a noop');
         assert(chunks[4].toString('hex').length > 100, 'ends with a big old redeem script');
         
+        try {
+            var c251t_tx_hex_wrong = hex_for_claim_execution(cash_out_address, no_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+            assert(false, 'Trying to claim with the wrong key combination should raise an error');
+        } catch( err) {
+            assert(true, 'Trying to claim with the wrong key combination should raise an error');
+        }
+
+
+
+
+
         
         //console.log("Made hex:");
         //console.log(c251t_tx_hex);
