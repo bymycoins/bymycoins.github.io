@@ -208,6 +208,15 @@
         var c251t_tx_hex = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
         var c251t_tx_hex_2 = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
         assert(c251t_tx_hex != c251t_tx_hex_2, 'Hex should be different each time, due to randomness in signatures');
+
+        var c251t_tx = tx_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+        var chunks = c251t_tx['ins'][0].getScript().chunks;
+        assert(0 == chunks[0].toString(), 'sig starts with an OP_0 for a buggy CHECK_MULTISIG to munch on');
+        assert(chunks[1].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(chunks[2].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(81 == chunks[3].toString(), 'after sigs we have a noop');
+        assert(chunks[4].toString('hex').length > 100, 'ends with a big old redeem script');
+        
         
         //console.log("Made hex:");
         //console.log(c251t_tx_hex);
@@ -922,7 +931,18 @@
         }
     }
 
+
     function hex_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c) {
+        var tx = tx_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c); 
+        var txHex =  tx.serialize().toString('hex');
+        //console.log(txHex);
+
+        return txHex;
+
+
+    }
+
+    function tx_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c) {
 
         var network = c['is_testnet'] ? bitcore.networks['testnet'] : bitcore.networks['livenet'];
 
@@ -994,11 +1014,7 @@
         b.sign([user_privkey_wif, winner_privkey_wif]);
         //b.sign([winner_privkey, winner_privkey]);
         tx = b.build();
-        var txHex =  tx.serialize().toString('hex');
-        //console.log(txHex);
-
-        return txHex;
-
+        return tx;
     }
 
     function testnet_setting_to_prefix(is_testnet) {
