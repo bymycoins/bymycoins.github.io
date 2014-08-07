@@ -14,34 +14,89 @@ Script._sortKeys = function(keys) {
     return keys;
 }
 
+Script.appendCheckMultiSigBits = function(script, n_required, inKeys, opts) {
+    inKeys = opts.noSorting ? inKeys : this._sortKeys(inKeys);
+    script.writeN(n_required);
+    inKeys.forEach(function(key) {
+        script.writeBytes(key);
+    });
+    script.writeN(inKeys.length);
+    script.writeOp(Opcode.map.OP_CHECKMULTISIG);
+    return script;
+};
 
 // Monkey-patch bitcoin-core Script TransactionBuilder to handle multiple sets of conditions.
 // Script.createMultisig = function(n_required, inKeys, opts)... replaced by:
 Script.createMultisigGroups = function( n_required_arr, inKeys_arr, opts) {
 
-    if (n_required_arr.length != inKeys_arr.length) {
+   var num_groups = n_required_arr.length;
+
+    if (num_groups != inKeys_arr.length) {
         throw new Error("Number of sigs required must be supplied for each set of pubkeys, no more or less");
     }
-    if (n_required_arr.length != 2) {
-        throw new Error("Only 2 levels supported so far, sorry");
+
+    if (num_groups < 2) {
+        throw new Error("Number of sigs is too low. If you only have one group, use a normal multisig transaction.");
     }
+
+    if (num_groups > 3) {
+        throw new Error("Number of groups is limited to 3");
+    }
+
+    /*
+    We want a series of branches for each combination
+    Patterns:
+    2 groups
+     OP_IF
+     OP_ELSE
+     OP_ENDIF
+
+    3 groups
+     OP_IF
+        OP_IF
+            group 1
+        OP_ELSE
+            group 2
+        OP_ENDIF
+     OP_ELSE
+            group 3
+     OP_ENDIF
+    */
+
+    // Flags that will be needed to solve the scripts for each group
+    // We could generate this dynamically to accomodate infinite branches but they won't fit in the script anyhow...
+    group_count_if_flags = {
+        1: [ [] ],
+        2: [
+            [ 1 ], [ 0 ] 
+           ],
+        3: [ 
+            [ 1, 1 ], [ 1, 0 ], [ 0 ] 
+           ],
+    };
+    var flag_groups = group_count_if_flags[ num_groups ];
 
     opts = opts || {};
 
     var script = new Script();
-    for (var i=0; i<n_required_arr.length; i++) {
-        script.writeOp( i == 0 ? Opcode.map.OP_IF : Opcode.map.OP_ELSE );
-        n_required = n_required_arr[i];
-        inKeys = inKeys_arr[i];
-        var keys = opts.noSorting ? inKeys : this._sortKeys(inKeys);
-        script.writeN(n_required);
-        keys.forEach(function(key) {
-            script.writeBytes(key);
-        });
-        script.writeN(keys.length);
-        script.writeOp(Opcode.map.OP_CHECKMULTISIG);
+
+    if (num_groups == 2) {
+        script.writeOp( Opcode.map.OP_IF );
+            script = Script.appendCheckMultiSigBits(script, n_required_arr[0], inKeys_arr[0], opts);
+        script.writeOp( Opcode.map.OP_ELSE );
+            script = Script.appendCheckMultiSigBits(script, n_required_arr[1], inKeys_arr[1], opts);
+        script.writeOp( Opcode.map.OP_ENDIF);
+    } else if (num_groups == 3) {
+        script.writeOp( Opcode.map.OP_IF );
+            script.writeOp( Opcode.map.OP_IF );
+                script = Script.appendCheckMultiSigBits(script, n_required_arr[0], inKeys_arr[0], opts);
+            script.writeOp( Opcode.map.OP_ELSE );
+                script = Script.appendCheckMultiSigBits(script, n_required_arr[1], inKeys_arr[1], opts);
+            script.writeOp( Opcode.map.OP_ENDIF);
+        script.writeOp( Opcode.map.OP_ELSE );
+                script = Script.appendCheckMultiSigBits(script, n_required_arr[2], inKeys_arr[2], opts);
+        script.writeOp( Opcode.map.OP_ENDIF);
     }
-    script.writeOp(Opcode.map.OP_ENDIF);
 
     return script;
 

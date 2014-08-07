@@ -104,29 +104,27 @@
 
     }
 
-    function run_tests() {
+    function test_script_monkey_patches() {
 
-        test_format_sanitization();
-        test_hash_to_contract();
-        test_mnemonic_handling();
-        test_transaction_cycle();
-        console.log('All tests complete');
+        var a_pub = new Buffer('02d8cb2a0ea3cadc894d19081fb241723f0a69c3819b035d0ae587a11849ba9b28', 'hex');
+        var yes_pub = new Buffer('02585eca9b441b0e17b12145f2d73ac7dd8da1eae7cdb4022db6b78f224db3bdc9', 'hex');
+        var b_pub = new Buffer('0254694936f88db742069686bd964020e3c453120044ae35fb2a91ed556b93e1e7', 'hex');
+        var no_pub = new Buffer('037545a3b495208ba67328773361ca5c0037352839d3c634251b540e91b61e0fd8', 'hex');
 
-    }
+        var s = Script.createMultisigGroups( [2,2], [ [a_pub, yes_pub], [b_pub, no_pub] ], {}); 
+        var chunks = s.chunks;
+        assert(chunks.length == 13, '13 chunks in 2-grouip pattern');
+        assert(chunks[0] == Opcode.map.OP_IF, 'chunk 0 OP_IF in 2-group pattern');
+        assert(chunks[1] != Opcode.map.OP_IF, 'chunk 1 OP_IF in 2-group pattern');
+        assert(chunks[chunks.length-1] == Opcode.map.OP_ENDIF, 'last chunk OP_ENDIF in 2-group pattern');
 
-    // From
-    // https://github.com/ggozad/mnemonic.js/issues/1
-    function seed_to_mnemonic(hex_seed) {
-        var random = [];
-        for(var i=0;i<hex_seed.length;i++){
-            var integer = parseInt(hex_seed.slice(8*i,i*8+8),16);
-            if (!isNaN(integer) ){
-                random.push(integer);
-            }
-        }
-        var m  = new Mnemonic();
-        m.random = random;
-        return m;
+        var s = Script.createMultisigGroups( [2,2,2], [ [a_pub, yes_pub], [b_pub, no_pub], [yes_pub, no_pub] ], {}); 
+        var chunks = s.chunks;
+        //assert(chunks.length == 13, '13 chunks in 2/2 pattern');
+        assert(chunks[0] == Opcode.map.OP_IF, 'chunk 0 OP_IF in 3-group pattern');
+        assert(chunks[1] == Opcode.map.OP_IF, 'chunk 1 OP_IF in 3-group pattern');
+        assert(chunks[chunks.length-1] == Opcode.map.OP_ENDIF, 'last chunk OP_ENDIF in 3-group pattern');
+
     }
 
     function test_transaction_cycle() {
@@ -220,6 +218,32 @@
 
     }
 
+    function run_tests() {
+
+        test_format_sanitization();
+        test_hash_to_contract();
+        test_mnemonic_handling();
+        test_transaction_cycle();
+        test_script_monkey_patches();
+        console.log('All tests complete');
+
+    }
+
+    // From
+    // https://github.com/ggozad/mnemonic.js/issues/1
+    function seed_to_mnemonic(hex_seed) {
+        var random = [];
+        for(var i=0;i<hex_seed.length;i++){
+            var integer = parseInt(hex_seed.slice(8*i,i*8+8),16);
+            if (!isNaN(integer) ){
+                random.push(integer);
+            }
+        }
+        var m  = new Mnemonic();
+        m.random = random;
+        return m;
+    }
+
     function store_contract(c, is_update) {
 
         //console.log("storing:");
@@ -228,6 +252,13 @@
             'contracts': {},
             'default': null
         }
+
+        // We sometimes have a lot of data here - just store the bare minimum to recreate the contract
+        var storeme = {};
+        storeme['yes_user_pubkey'] = c['yes_user_pubkey'];
+        storeme['no_user_pubkey'] = c['no_user_pubkey'];
+        storeme['address'] = c['address'];
+        storeme['id'] = c['id'];
 
         p2sh_addr = c['address'];
         contract_json_str = localStorage.getItem('contract_store');
@@ -240,6 +271,7 @@
                 return; // Already there
             }
         }
+        //contract_store['contracts'][p2sh_addr] = storeme;
         contract_store['contracts'][p2sh_addr] = c;
         contract_store['default'] = p2sh_addr;
 
@@ -637,9 +669,7 @@
         // ...but show the overall section so we can see it loading
         $('#goal-view-section').css('visibility', 'visible');
 
-        if (!c['charity_display']) {
-            c['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
-        }
+        c['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
 
         var wins_on = wins_on_for_stored_keys(c);
         if (wins_on == 'Yes') {
@@ -669,6 +699,7 @@
             type: 'GET',
             dataType: 'json', 
             success: function(data) {
+
                 data['wins_on'] = wins_on;
                 data['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
                 data['yes_user_pubkey'] = c['yes_user_pubkey'];
@@ -1189,6 +1220,7 @@
 
         var yes_pubkeys = [ data['yes_user_pubkey'], data['yes_pubkey'] ];
         var no_pubkeys = [ data['no_user_pubkey'], data['no_pubkey'] ];
+        var user_pubkeys = [ data['yes_user_pubkey'], data['no_user_pubkey'] ];
 
         // multisig group p2sh
         var opts = {
