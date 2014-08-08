@@ -275,8 +275,8 @@ console.log(c251t_tx_hex_wrong);
         assert(0 == chunks[0].toString(), 'sig starts with an OP_0 for a buggy CHECK_MULTISIG to munch on');
         assert(chunks[1].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
         assert(chunks[2].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
-        assert(81 == chunks[3].toString(), 'after sigs we have a 1');
-        assert(0 == chunks[4].toString(), 'after sigs we have a 0 for the first branch');
+        assert(0 == chunks[3].toString(), 'after sigs we have a 1');
+        assert(81 == chunks[4].toString(), 'after sigs we have a 0 for the first branch');
         assert(chunks[5].toString('hex').length > 100, 'ends with a big old redeem script');
  
 
@@ -900,10 +900,9 @@ console.log(c251t_tx_hex_wrong);
                         console.log(data);
                     }
                 });
-                console.log("returning from add");
             },
             error: function(data) {
-                console.log("got error from fake");
+                console.log("got error");
                 console.log(data);
             }
         });
@@ -967,6 +966,7 @@ console.log(c251t_tx_hex_wrong);
         for (i=0; i < txes.length; i++) {
             
             var txHex = hex_for_claim_execution(to_addr, user_privkey, winner_privkey, txes[i], c); 
+console.log(txHex);
 
             // For now our spending transaction is non-standard, so we have to send to eligius.
             // Hopefully this will be fixed in bitcoin core fairly soon, and we can use same the blockr code for testnet.
@@ -1493,15 +1493,29 @@ console.log(c251t_tx_hex_wrong);
                 console.log('missing a pubkey');
                 return false;
             }
-
-            var response = $.ajax({
-                url: url, 
-                async: false,
-                type: 'POST',
-                data: params,
-                dataType: 'json', 
-            });
+            // debugging thing to use an existing fact instead
+            var response;
+            var override_with_fact_id = parseInt($('#override-with-existing-fact-id').val());
+            if (override_with_fact_id > 0) {
+                var fact_id = 
+                url = oracle_api_base + '/runkeeper/'+override_with_fact_id+'/'+oracle_param_string
+                var response = $.ajax({
+                    url: url, 
+                    async: false,
+                    type: 'GET',
+                    dataType: 'json', 
+                });
+            } else {
+                var response = $.ajax({
+                    url: url, 
+                    async: false,
+                    type: 'POST',
+                    data: params,
+                    dataType: 'json', 
+                });
+            }
             if (response.status != 200) {
+                console.log(response);
                 console.log(response.responseJSON['errors']);
                 bootbox.alert('Sorry, could not register the fact with Reality Keys.');
                 return false;

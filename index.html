@@ -19,6 +19,7 @@
     <link href="css/sb-admin.css" rel="stylesheet">
     <style>
     .dev_warning { border:1px solid; color:red; text-align:center }
+    .for-debugging { display:nonez }
     .linkable-anchor { padding-top: 40px; margin-top: -40px; }
 
     .for-charities .individuals-only { display:none }
@@ -222,6 +223,7 @@ Play with it if you like, but don't put in any serious money.
     <div >
       <div class="panel-body">
               <form action="#view-single-goal" id="set-goal-form" class="form-horizontal">
+                <input id="override-with-existing-fact-id" class="for-debugging" />
                 <fieldset>
                   <div class="form-group">
                     <label for="user" class="col-md-2 control-label">Athlete</label>

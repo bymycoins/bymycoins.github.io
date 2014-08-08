@@ -65,16 +65,6 @@ Script.createMultisigGroups = function( n_required_arr, inKeys_arr, opts) {
 
     // Flags that will be needed to solve the scripts for each group
     // We could generate this dynamically to accomodate infinite branches but they won't fit in the script anyhow...
-    group_count_if_flags = {
-        1: [ [] ],
-        2: [
-            [ 1 ], [ 0 ] 
-           ],
-        3: [ 
-            [ 1, 1 ], [ 1, 0 ], [ 0 ] 
-           ],
-    };
-    var flag_groups = group_count_if_flags[ num_groups ];
 
     opts = opts || {};
 
@@ -283,8 +273,8 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
         if (signable_section == 2) {
             scriptSig.chunks.push( Opcode.map.OP_0 ); // outer branch, there is no inner branch
         } else {
-            scriptSig.chunks.push( Opcode.map.OP_1 ); // outer branch 1, then 1 for the first inner branch or 0 for the second
             scriptSig.chunks.push( (signable_section == 0 ? Opcode.map.OP_1 : Opcode.map.OP_0) );
+            scriptSig.chunks.push( Opcode.map.OP_1 ); // outer branch 1, then 1 for the first inner branch or 0 for the second
         }
     }
 
