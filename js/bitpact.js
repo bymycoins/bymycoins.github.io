@@ -140,8 +140,10 @@
         var no_user_mnemonic = 'manage wound those decide rule sadness confusion cheese house decision mutter girl';
         var no_user_mne = new Mnemonic(no_user_mnemonic.split(' ')); 
         var no_user_seed = no_user_mne.toHex();
-        var no_user_privkey = key_for_new_seed(no_user_seed);
-        var no_user_pubkey = '0213e0a3f741cd305571366ee3d30bfd819bd95b6f0d8dea0ee13a10dc3f6cf4e6';
+        var no_user_privkey_obj = key_for_new_seed(no_user_seed);
+        var no_user_privkey = no_user_privkey_obj['priv']
+        var no_user_pubkey = no_user_privkey_obj['pub']
+        assert(no_user_pubkey == '0213e0a3f741cd305571366ee3d30bfd819bd95b6f0d8dea0ee13a10dc3f6cf4e6', 'No user pubkey as expected');;
 
         var cash_out_address = 'mrYtQCHVLFrvrkt7Wf3TEajsZ9UwDMDKCs';
 
@@ -154,14 +156,22 @@
         // https://www.realitykeys.com/api/v1/runkeeper/252/?accept_terms_of_service=current
         var no_fact = {"no_pubkey": "02c5671e3ec059bd200665d227e99e3f3f0f28ecdf848c4bfb5de408e5def8300a", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user": "edochan", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "12300", "created_datetime": "2014-07-23 09:11:05", "winner": "No", "value": "12300", "id": 252, "source": "runkeeper", "yes_pubkey": "02f70abb10f616d102b67ea0cc5f4887df642771c4dce5ba838ac88e465210dd64", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L3iW65EC59fvWjsRz2TNPjBtueyBt2mkGE59LdG5nAf463YTRD45"}
 
+
+
+
         // testnet contract for fact 251 (yes)
         var c251t = yes_fact; // NB This will have more fields filled than we would have in reality
         c251t['is_testnet'] = true;
         c251t['yes_user_pubkey'] = yes_user_pubkey;
         c251t['no_user_pubkey'] = no_user_pubkey;
         c251t['is_testnet'] = true;
-        var c251t_fund_address = p2sh_address(c251t);
-        assert('2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU' == c251t_fund_address, 'fact 251 gives us the expected funding address');
+
+        // old method with only the two groups and no user+user unlocking
+        //var c251t_fund_address = p2sh_address(c251t, false);
+        //assert('2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU' == c251t_fund_address, 'fact 251 gives us the expected funding address');
+
+        c251t_fund_address = p2sh_address(c251t);
+        assert('2MxivUngEKfZVUmCv3b9ff4qmoDhRHTENcn' == c251t_fund_address, 'fact 251 gives us the expected funding address with the extra user-user branch');
 
         // mainnet version of the same thing
         var c251m = c251t;
@@ -178,7 +188,7 @@
         // We then use it to populate the balance field of the contract
         c251t['balance'] = 0.03;
 
-        var c251t_blockr = {
+        var demo_unspent_blockr = {
             "status": "success",
             "data": {
                 "address": "2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU",
@@ -203,32 +213,78 @@
             "code": 200,
             "message": ""
         };
-        var c251t_unspent_txes = c251t_blockr['data']['unspent'];
+        var demo_unspent_txes = demo_unspent_blockr['data']['unspent'];
 
-        var c251t_tx_hex = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
-        var c251t_tx_hex_2 = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+        var c251t_tx_hex = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], demo_unspent_txes[0], c251t);
+        var c251t_tx_hex_2 = hex_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], demo_unspent_txes[0], c251t);
         assert(c251t_tx_hex != c251t_tx_hex_2, 'Hex should be different each time, due to randomness in signatures');
 
-        var c251t_tx = tx_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+        var c251t_tx = tx_for_claim_execution(cash_out_address, yes_user_privkey, c251t['winner_privkey'], demo_unspent_txes[0], c251t);
         var chunks = c251t_tx['ins'][0].getScript().chunks;
         assert(0 == chunks[0].toString(), 'sig starts with an OP_0 for a buggy CHECK_MULTISIG to munch on');
         assert(chunks[1].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
         assert(chunks[2].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
-        assert(81 == chunks[3].toString(), 'after sigs we have a noop');
-        assert(chunks[4].toString('hex').length > 100, 'ends with a big old redeem script');
+        assert(81 == chunks[3].toString(), 'after sigs we have a 1');
+        assert(81 == chunks[4].toString(), 'after sigs we have another 1 for the first branch');
+        assert(chunks[5].toString('hex').length > 100, 'ends with a big old redeem script');
         
+        /*
+        TODO: Work out how to propagate the errors for this
         try {
-            var c251t_tx_hex_wrong = hex_for_claim_execution(cash_out_address, no_user_privkey, c251t['winner_privkey'], c251t_unspent_txes[0], c251t);
+            var c251t_tx_hex_wrong = hex_for_claim_execution(cash_out_address, no_user_privkey, c251t['winner_privkey'], demo_unspent_txes[0], c251t);
+console.log(c251t_tx_hex_wrong);
             assert(false, 'Trying to claim with the wrong key combination should raise an error');
         } catch( err) {
             assert(true, 'Trying to claim with the wrong key combination should raise an error');
         }
+        */
+
+
+        var c251t_tx_user = tx_for_claim_execution(cash_out_address, yes_user_privkey, no_user_privkey, demo_unspent_txes[0], c251t);
+        var chunks = c251t_tx_user['ins'][0].getScript().chunks;
+        assert(0 == chunks[0].toString(), 'sig starts with an OP_0 for a buggy CHECK_MULTISIG to munch on');
+        assert(chunks[1].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(chunks[2].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(0 == chunks[3].toString(), 'after sigs we have a noop');
+        assert(chunks[4].toString('hex').length > 100, 'ends with a big old redeem script');
+
+
+
+        // testnet contract for fact 251 (yes)
+        var c252t = no_fact; // NB This will have more fields filled than we would have in reality
+        c252t['is_testnet'] = true;
+        c252t['yes_user_pubkey'] = yes_user_pubkey;
+        c252t['no_user_pubkey'] = no_user_pubkey;
+        c252t['is_testnet'] = true;
+
+        // old method with only the two groups and no user+user unlocking
+        //var c252t_fund_address = p2sh_address(c252t, false);
+        //assert('2N3gsvXbFd5UmjPTwHy1gNyLQ8SXPqMVqrU' == c252t_fund_address, 'fact 252 gives us the expected funding address');
+
+        c252t_fund_address = p2sh_address(c252t);
+        assert('2Mtr3ge4kcA8rffWQdwfkcEYfuzyZJ956A2' == c252t_fund_address, 'fact 252 gives us the expected funding address with the extra user-user branch');
+        assert(c251t_fund_address != c252t_fund_address, 'Yes fact produces a different funding address to a different no fact');
+
+        // mainnet version of the same thing
+        var c252t_tx_hex = hex_for_claim_execution(cash_out_address, no_user_privkey, c252t['winner_privkey'], demo_unspent_txes[0], c252t);
+        var c252t_tx_hex_2 = hex_for_claim_execution(cash_out_address, no_user_privkey, c252t['winner_privkey'], demo_unspent_txes[0], c252t);
+        assert(c252t_tx_hex != c252t_tx_hex_2, 'Hex should be different each time, due to randomness in signatures');
+
+        var c252t_tx = tx_for_claim_execution(cash_out_address, no_user_privkey, c252t['winner_privkey'], demo_unspent_txes[0], c252t);
+        var chunks = c252t_tx['ins'][0].getScript().chunks;
+        assert(0 == chunks[0].toString(), 'sig starts with an OP_0 for a buggy CHECK_MULTISIG to munch on');
+        assert(chunks[1].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(chunks[2].toString('hex').length > 50, 'first sig > 50 chars (TODO: when lib gets deterministic k, check expected val');
+        assert(81 == chunks[3].toString(), 'after sigs we have a 1');
+        assert(0 == chunks[4].toString(), 'after sigs we have a 0 for the first branch');
+        assert(chunks[5].toString('hex').length > 100, 'ends with a big old redeem script');
+ 
 
 
 
 
 
-        
+
         //console.log("Made hex:");
         //console.log(c251t_tx_hex);
 
@@ -943,8 +999,8 @@
     }
 
 
-    function hex_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c) {
-        var tx = tx_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c); 
+    function hex_for_claim_execution(to_addr, priv1, priv2, tx, c) {
+        var tx = tx_for_claim_execution(to_addr, priv1, priv2, tx, c); 
         var txHex =  tx.serialize().toString('hex');
         //console.log(txHex);
 
@@ -953,7 +1009,7 @@
 
     }
 
-    function tx_for_claim_execution(to_addr, user_privkey, winner_privkey, tx, c) {
+    function tx_for_claim_execution(to_addr, priv1, priv2, tx, c) {
 
         var network = c['is_testnet'] ? bitcore.networks['testnet'] : bitcore.networks['livenet'];
 
@@ -978,13 +1034,14 @@
 
         var pubkeys = [
             [ c['yes_user_pubkey'], c['yes_pubkey'] ],
-            [ c['no_user_pubkey'], c['no_pubkey'] ]
+            [ c['no_user_pubkey'], c['no_pubkey'] ],
+            [ c['yes_user_pubkey'], c['no_user_pubkey'] ]
         ];
-        //console.log("using pubkeys:");
         //console.log(pubkeys);
 
-        var opts = {network: network, nreq:[2,2], pubkeys:pubkeys};
+        var opts = {network: network, nreq:[2,2,2], pubkeys:pubkeys};
         var fee = 10000 / 100000000;
+
 
         outs = [{address:to_addr, amount:(amount-fee)}];
         //console.log("outs:");
@@ -1010,14 +1067,14 @@
 
         var user_wk = new bitcore.WalletKey({ network: network });
         user_wk.fromObj( {
-            priv: user_privkey,
+            priv: priv1,
         });
         var user_wk_obj = user_wk.storeObj();
         var user_privkey_wif = user_wk_obj.priv;
 
         var winner_wk = new bitcore.WalletKey({ network: network });
         winner_wk.fromObj( {
-            priv: winner_privkey,
+            priv: priv2,
         });
         var winner_wk_obj = winner_wk.storeObj();
         var winner_privkey_wif = winner_wk_obj.priv;
@@ -1234,7 +1291,11 @@
 
     }
 
-    function p2sh_address(data) {
+    function p2sh_address(data, include_user_keys) {
+
+        if (include_user_keys == null) {
+            include_user_keys = true;
+        }
 
         var script = redeem_script(data);
         address_version = data['is_testnet'] ? 'testnet' : 'livenet';
@@ -1245,16 +1306,16 @@
 
     function redeem_script(data) {
 
+        include_user_keys = true;
+
         var yes_pubkeys = [ data['yes_user_pubkey'], data['yes_pubkey'] ];
         var no_pubkeys = [ data['no_user_pubkey'], data['no_pubkey'] ];
         var user_pubkeys = [ data['yes_user_pubkey'], data['no_user_pubkey'] ];
 
         // multisig group p2sh
         var opts = {
-            nreq: [2,2],
-            pubkeys: [
-                yes_pubkeys, no_pubkeys
-            ]
+            nreq: include_user_keys ? [2,2,2] : [2,2],
+            pubkeys: include_user_keys ? [ yes_pubkeys, no_pubkeys, user_pubkeys ] : [ yes_pubkeys, no_pubkeys ]
         };
 
         var address_version = data['is_testnet'] ? 'testnet' : 'livenet';
@@ -1432,6 +1493,7 @@
                 console.log('missing a pubkey');
                 return false;
             }
+
             var response = $.ajax({
                 url: url, 
                 async: false,

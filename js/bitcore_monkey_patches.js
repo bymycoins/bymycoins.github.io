@@ -160,36 +160,33 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
     var pubkey_to_section = {}; 
 
     // Split the sections into [n pub pub pub m] sections
-    // ...saving [pub, pub, pub] and n
-    // For now, only support one level of if/elses
+    // ...saving [pub, pub, pub] and n for each section
     for(var i=0; i<input.scriptPubKey.chunks.length; i++) {
 
         var this_chunk = input.scriptPubKey.chunks[i];
-        if (this_chunk == Opcode.map.OP_IF) {
+
+        // Any time we see a branching control character eg OP_IF or OP_ELSE
+        // ...assume we're going to start a new section next
+        // ...and close the previous one, if it's open
+
+        if ( (this_chunk == Opcode.map.OP_IF) || (this_chunk == Opcode.map.OP_ELSE) || (this_chunk == Opcode.map.OP_ENDIF) ) {
+            // If we have anything in the previous section, close it
+            if (section_nreq > 0) {
+                section_pubs.push(this_section);
+                section_nreqs.push(section_nreq);
+            }
             this_section = [];
             section_nreq = 0;
             continue;
         } 
         
-        if ( (this_chunk == Opcode.map.OP_ELSE) || (this_chunk == Opcode.map.OP_ENDIF) ) {
-            // End of the section, add to the list of section_pubs
-            section_pubs.push(this_section);
-            section_nreqs.push(section_nreq);
-            // Set up for the next section, if there is one.
-            if (this_chunk == Opcode.map.OP_ELSE) {
-                this_section = [];
-                section_nreq = 0;
-            }
-            continue;
-        } 
-
         if ( (this_chunk == Opcode.map.OP_CHECKMULTISIG) || (this_chunk == Opcode.map.OP_CHECKMULTISIG) ) {
             continue;
         }
 
         if ( (this_chunk > (0 + 80)) && (this_chunk < (16 + 80) ) ) {
             if (section_nreq == 0) {
-                section_nreq = (this_chunk - 80); // see OP_2-OP_16
+                section_nreq = (this_chunk - 80); 
             } 
             continue;
         }
@@ -206,24 +203,28 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
 
     // Work out which section to sign for
     signable_section = -1;
-    for (var s=0; s < section_pubs.length; s++) {
-        var pubs = section_pubs[s];
-        var nreq = section_nreqs[s];
+    for (var sec=0; sec < section_pubs.length; sec++) {
+        if (signable_section > -1) {
+            break;
+        } 
+        var pubs = section_pubs[sec];
+        var nreq = section_nreqs[sec];
         var found = 0;
         for (var p=0; p < pubs.length; p++) {
             if (wk = this._findWalletKey(walletKeyMap, {pubKeyBuf: pubs[p]})) {
                 found++;
                 if (found == nreq) {
-                    signable_section = s; 
+                    signable_section = sec; 
                     break;
                 }
-            }
+            } 
         }
     }
+    //console.log("ended up with signable section "+signable_section);
 
     if (signable_section == -1) {
-        alert('not signable, give up');
-        return;
+        console.log('not signable, give up');
+        return false;
     }
 
     //var pubkeys = input.scriptPubKey.capture();
@@ -271,12 +272,27 @@ TransactionBuilder.prototype._signMultiSigGroups = function(walletKeyMap, input,
         }
     }
 
-    var branch_flag = signable_section == 0 ? Opcode.map.OP_1 : Opcode.map.OP_0;
+    //console.log("signable sectin:");
+
+
+    // Support two-group and three-group patterns.
+    // By convention we do the first two as inner if and the outer one as 
+    if (section_nreqs.length == 2) {
+        scriptSig.chunks.push( (signable_section == 0 ? Opcode.map.OP_1 : Opcode.map.OP_0) );
+    } else if (section_nreqs.length == 3) {
+        if (signable_section == 2) {
+            scriptSig.chunks.push( Opcode.map.OP_0 ); // outer branch, there is no inner branch
+        } else {
+            scriptSig.chunks.push( Opcode.map.OP_1 ); // outer branch 1, then 1 for the first inner branch or 0 for the second
+            scriptSig.chunks.push( (signable_section == 0 ? Opcode.map.OP_1 : Opcode.map.OP_0) );
+        }
+    }
+
+
     //alert(branch_flag);
     //console.log("chunks and buffer before branch flag:")
     //console.log(scriptSig.chunks);
     //console.log(scriptSig.getBuffer().length);
-    scriptSig.chunks.push( branch_flag );
     scriptSig.updateBuffer();
     //console.log("chunks and buffer after branch flag:")
     //console.log(scriptSig.chunks);
@@ -369,7 +385,6 @@ TransactionBuilder.prototype._p2shInput = function(input) {
 };
 
 TransactionBuilder.prototype.sign = function(keys) {
-    //console.log("tn my sign");
     this._checkTx();
     var tx  = this.tx,
     ins = tx.ins,
