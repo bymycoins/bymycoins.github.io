@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BitPact: Smart Contracts With Your Future Self</title>
-
-    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
-
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<title>By My Coins: Smart contracts with your future self</title>
+		<meta name="generator" content="Bootply" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
 
-    <!-- Page-Level Plugin CSS - Dashboard -->
-    <link href="css/plugins/timeline/timeline.css" rel="stylesheet">
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
 
-    <!-- SB Admin CSS - Include with every page -->
-    <link href="css/sb-admin.css" rel="stylesheet">
-    <style>
+
+		<!--[if lt IE 9]>
+			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link href="css/styles.css" rel="stylesheet">
+<style>
+    #activity { display:none }
+
+    #section3:not(.populated) div { visibility:hidden }
+
+    .activity-icon { padding: 10px; margin:2px; }
+    .activity-icon.selected { border: 2px solid #428bca; border-radius: 10px  } 
+    .activity-icon:not(.selected) { padding:12px } /* Extra 1px padding to take the same space as 1px border */
+
+     /* We'll show this once they have a valid seed to make a key from */
+    .public-key-display { display:none }
+
     .dev_warning { border:1px solid; color:red; text-align:center }
     .for-debugging { display:nonez }
     .linkable-anchor { padding-top: 40px; margin-top: -40px; }
@@ -26,278 +37,351 @@
     .for-individuals .charities-only { display:none }
 
     .view-goal-form-loading { display:none }
+    section.goal-stored .view-goal-store { display: none }
 
-    #goal-view-section .contract-info { float:right }
+    .form-horizontal .control-label { font-color:red; size:200% }
 
     body:not(.mnemonic-created-and-confirmed) li.needs-mnemonic-created-and-confirmed a { color:gray }
     body.mnemonic-created-and-confirmed #confirm-mnemonic-button { display: none }
 
-    #goal-view-section:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
-    #goal-view-section:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
-    #goal-view-section:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
+    body.athlete-connected #authenticate-runkeeper-user {display:none}
 
-    #goal-view-section:not(.decided) .contract-info.needs-decided { display:none }
-    #goal-view-section:not(.undecided) .contract-info.needs-undecided { display:none }
+    /*
+    In theory you might want to set a different user and track someone else.
+    But for now assume it'll be you to keep the UI simple.
+    */
+    #user { display:none }
 
-    #goal-view-section:not(.key-not-ready) .contract-info.needs-key-not-ready { display:none }
 
-    #goal-view-section:not(.i-won) .contract-info.needs-i-won { display:none }
-    #goal-view-section:not(.i-lost) .contract-info.needs-i-lost { display:none }
+    .contract-data-row:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
+    .contract-data-row:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
+    .contract-data-row:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
 
-    #view-goal-form .control-label {padding-top: 0px;}
+    .contract-data-row:not(.decided) .contract-info.needs-decided { display:none }
+    .contract-data-row:not(.undecided) .contract-info.needs-undecided { display:none }
 
-    #goal-view-info-section-top { float:right }
-    #goal-view-info-section-bottom { float:right }
-    #goal-view-balance-container { display:none }
-    #goal-view-reality-key-link-container { display:none }
+    .contract-data-row:not(.key-not-ready) .contract-info.needs-key-not-ready { display:none }
+
+    .contract-data-row:not(.i-won) .contract-info.needs-i-won { display:none }
+    .contract-data-row:not(.i-lost) .contract-info.needs-i-lost { display:none }
+
+
+    .contract-data-row:not(.funded) .btn.claim-button { visibility:hidden }
+    .contract-data-row.undecided .btn.claim-button { visibility:hidden }
+    .contract-data-row:not(.undecided) .btn.fund-button { visibility:hidden }
+
+
+
+    .goal-view-section:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
+    .goal-view-section:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
+    .goal-view-section:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
+
+    .goal-view-section:not(.decided) .contract-info.needs-decided { display:none }
+    .goal-view-section:not(.undecided) .contract-info.needs-undecided { display:none }
+
+    .goal-view-section:not(.key-not-ready) .contract-info.needs-key-not-ready { display:none }
+
+    .goal-view-section:not(.i-won) .contract-info.needs-i-won { display:none }
+    .goal-view-section:not(.i-lost) .contract-info.needs-i-lost { display:none }
+
+    .goal-view-balance-container { display:none }
+    .goal-view-reality-key-link-container { display:none; bottom:5px }
+
+
+    /* Start by hiding all the buttons on the goal setting form, then show them where necessary */
+    .goal-section .set-goal-submit { display:none }
+    .goal-section .jump-to-secret{ display:none }
+    .goal-section .jump-to-connect{ display:none }
+
+    body.mnemonic-created-and-confirmed.athlete-connected .set-goal-submit {display:inline}
+    body:not(.mnemonic-created-and-confirmed) .jump-to-secret{ display:inline}
 
     /*
     There will be a single item at the bottom of the page for showing an individual contract
     This will be empty unless you hit "view" or have the details in a URL.
     We use visibility hidden here instead of display none to avoid confusing the browser trying to link to an anchor that isn't being displayed, which can cause strange visual effects.
     */
-    #goal-view-section { visibility: hidden }
-    .completed-form-control { vertical-align:middle; height:100% }
+    .goal-view-section { visibility: hidden }
+   #mnemonic {text-align: center}
     </style>
 
 
-    <!--
-    <link href="css/bootstrap-nav-wizard.min.css" rel="stylesheet">
-    -->
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
+	</head>
   <body class="for-individuals for-list">
+<nav class="navbar navbar-trans navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapsible">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">BY MY COINS</a>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar-collapsible">
+      <ul class="nav navbar-nav navbar-left">
+        <li><a class="individuals-only list-view needs-mnemonic-created-and-confirmed" href="#section1">I Swear</a></li>
+        <li><a href="#section2">My Secret</a></li>
+        <li><a href="#section3">Lock up your coins</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed" ><a href="#section5">Claim your coins</a></li>
+        <li class="charities-only list-view needs-mnemonic-created-and-confirmed"><a href="#section5">Transfer funds</a></li>
+        <!--
+        <li id="page-individual-switch" class="active page-switch"><a href="#individual" >For Individuals</a></li>
+        <li id="page-charity-switch" class="page-switch"><a href="#charity" >For Charities</a></li>
+        -->
+      </ul>
 
 
+    </div>
+  </div>
+</nav>
 
-    <div id="wrapper">
 
-        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="index.html">BITPACT</a>
-            </div>
-            <!-- /.navbar-header -->
+<section class="container-fluid goal-section needs-connect" id="section1">
 
-            <ul class="nav navbar-top-links navbar-right">
-
-            <li id="page-individual-switch" class="active page-switch"><a href="#individual" >For Individuals</a></li>
-            <li id="page-charity-switch" class="page-switch"><a href="#charity" >For Charities</a></li>
-            </ul>
-            <!-- /.navbar-top-links -->
-
-            <div class="navbar-default navbar-static-side" role="navigation">
-                <div class="sidebar-collapse">
-                    <ul class="nav" id="side-menu">
-                        <li class="list-view"><a href="#secret">Create a secret</a></li>
-                        <li class="individuals-only list-view"><a href="#connect">Connect to RunKeeper</a></li>
-                        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed"><a href="#set-goal">Make a pact</a></li>
-                        <!--
-                        <li class="charities-only list-view"><a href="#import">Load pacts</a></li>
-                        -->
-                        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed"><a href="#claim">List pacts</a></li>
-                        <li class="charities-only list-view needs-mnemonic-created-and-confirmed"><a href="#claim">Transfer funds</a></li>
-                    </ul>
-                    <!-- /#side-menu -->
-                </div>
-                <!-- /.sidebar-collapse -->
-            </div>
-            <!-- /.navbar-static-side -->
-        </nav>
-
-        <div id="page-wrapper">
-            <div class="row">
-                <br />
-                <!-- /.col-lg-12 -->
-            </div>
-
-<div class="dev_warning">
-WARNING
-<br />
-This application is still being actively developed and has not yet been properly tested.
-<br />
-Play with it if you like, but don't put in any serious money.
+<div class="individuals-only list-view">
+<a class="linkable-anchor" name="set-goal">&nbsp;</a>
 </div>
-
-
-
-<div class="panel-group">
-
-  <a class="linkable-anchor" name="secret">&nbsp;</a>
-  <div class="panel panel-default list-view" id="secret-section">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        Create a secret, make a copy of it and keep it safe.
-      </h4>
+    <h1 class="text-center contract-title-start-zz"></h1>
+<form action="#view-single-goal" id="set-goal-form" class="form-horizontal create-not-ready" role="form">
+<!--
+Some people may prefer single instance, but for now let's keep it simple
+-->
+<input type="hidden" id="measurement" name="measurement" value="cumulative_distance" />
+  <div class="form-group">
+        <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my coins</label>
+        <div class="col-md-2">
+            <input class="form-control" type="text" id="user" placeholder="User on RunKeeper" value="" />
+            <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user">Connect to RunKeeper</a>
+        </div>
+      </div>
+  <div class="form-group">
+  	<label class="control-label col-md-6">to <span class="activity-verb">walk</span></label>
+  	<div class="col-md-6">
+      <img class="activity-icon" data-activity="running" src="img/icons/PNG/32/Sports/running-32.png">
+          <img class="activity-icon" data-activity="walking" src="img/icons/PNG/32/Sports/walking-32.png">
+          <select id="activity">
+            <option value=""></option>
+            <option data-verb="run" data-unit="m" value="running">run</option>
+            <option data-verb="walk" data-unit="m" value="walking" selected>walk</option>
+          </select>
     </div>
-    <div >
-      <div class="panel-body">
-              <form class="form-horizontal">
+  </div>
+  <div class="form-group">
+  	<label class="control-label col-md-6"><span class="goal-text"></span></label>
+  	<div class="col-md-2">
+        <input style="height:30px" size="8" class="form-control" type="text" id="goal" placeholder="Goal (meters)" value="1000"> 
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-md-6">by <span class="settlement-date-text"></span></label>
+  	<div class="col-md-2">
+        <input size="8" type="text" id="settlement_date" placeholder="Date" value="" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+  	<label class="control-label col-md-6">
+        or they go to 
+        <br />
+        <span class="charity-display-text"></span>
+    </label>
+  	<div class="col-md-6">
+        <img class="charity-icon" data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
+        <select id="charity-select" style="display:none">
+            <option value="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3">Chika Edgar Kickboxing Fund</option>
+            <option value="other">Other (enter public key below)</option>
+        </select> 
+        <br />
+        <input type="text" id="charity-public-key" placeholder="Charity Public Key">
+    </div>
+  </div>
+ </form>
+  <div class="row">
+  	<div class="col-md-12 text-center">
+
+        <input type="text" id="override-with-existing-fact-id" class="for-debugging" />
+        <!--
+        <select class="form-control" id="measurement">
+            <option value="total_distance">Distance (Total)</option>
+            <option value="cumulative_distance" selected>Distance (Cumulative)</option>
+        </select>
+        -->
+        <h1 class="text-center contract-title-end-xxx"></h1>
+        <a class="btn btn-primary jump-to-secret" href="#section2">Next (set secret)</a>
+        <button id="set-goal-submit" type="submit" class="btn btn-primary set-goal-submit">Set this goal</button>
+        <br />
+        <input id="is-testnet" value="1" type="checkbox"> Test network
+    </div>
+  </div>
+  </form>
+</section>
+
+<section class="container-fluid secret-section" id="section2">
+<a class="linkable-anchor" name="secret">&nbsp;</a>
+  	<h3 class="text-center">Your Secret</h3>
+    <br />
+    <h4 class="text-center">We have made you a secret list of words for you. Anyone who has this list of words can claim your bitcoins.</h4>
+    <h4 class="text-center">Make sure you keep a copy of this safe to be sure you can get your bitcoins back.</h4>
+    <br />
+  	<div class="row ">
+        <div class=" col-md-8 col-md-offset-2">
+            <input class="form-control" id="mnemonic" type="text" placeholder="Your secret words" />
+        </div>
+    </div>
+    <br />
+  	<div class="row ">
+        <input class="btn btn-primary col-md-6 col-md-offset-3" id="confirm-mnemonic-button" value="I have made a copy of these words, and I will keep them secret." />
+    </div>
+
+    <br />
+    <br />
+  	<div class="row public-key-display">
+        <h4 class="text-center">Does someone want to make a contract that would pay you? Give them this public key:</h4>
+        <h4 class="text-center" id="public-key"></span>
+  	</div>
+</section>
+
+<section class="container-fluid" id="section3" class="goal-view-section">
+    <div class="row">
+      <div class="col-sm-12 text-center">
+          <h2 class="contract-title-start"></h2>
+          <h3 class="contract-title-end"></h3>
+          <p class="text-center">Pay this address</p>
+          <h2 id="view-contract-payable-address"></h2>
+          
+          <h4><i>Tip: Anyone can pay this address! Why not ask your friends to sponsor you?</i></h4>
+          <br />
+          <h4>We haven't told anyone about your pledge yet, not even the charity!</h4>
+          <h4>Tweet the address of this page to <a href="https://www.twitter.com/bymycoins">@bymycoins</a>.</h4>
+          <br />
+          <span class="btn btn-primary">Tweet to let people know</span>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12 text-center">
+          <button id="view-goal-store" type="submit" class="btn btn-primary">Store for later</button>
+      </div>
+    </div>
+
+      <div id="goal-view-button-section">
+    <!--
+          &nbsp;
+
+          <button type="submit" class="btn btn-primary action-button claim-button" disabled="disabled" id="single-claim-button">Claim</button></span>
+      &nbsp;
+          <a href="#" target="twitter_window" id="tweet-button" type="submit" class="btn btn-primary action-button tweet-button">Tweet</a>
+-->
+      </div>
+
+      <div id="goal-view-info-section-bottom">
+          <span id="goal-view-reality-key-link-container" class=""><a href="#" id="goal-view-reality-key-link"><img width="16" height="16" src="img/realitykeys_32.png"></a></span>
+      </div>
+
+
+
+</section>
+
+<section class="container-fluid" id="section5">
+    <div class="row">
+        <div class="col-sm-12 ">
+            <a href="#" id="filter_claimable">Claim</a>
+            <a href="#" id="filter_win_on_yes">My goals</a>
+            <a href="#" id="filter_win_on_no">Other people's goals</a>
+        </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12 ">
+            <table id="claim-form" class="table table-striped">
+                  <tbody><tr class="row form-group">
+                    <th data-type="funds" class="col-md-1">Available</th>
+                    <th data-type="user" class="col-md-1">Athlete</th>
+                    <th data-type="activity" class="col-md-2">Activity</th>
+                    <th data-type="goal" class="col-md-1">Goal</th>
+                    <th data-type="settlement_date" class="col-md-1">Deadline</th>
+                    <th data-type="charity-address" class="col-md-2">Charity</th>
+                    <th data-type="fund-button" class="col-md-1">Fund</th>
+                    <th data-type="tweet-button" class="col-md-1">Tweet</th>
+                    <th data-type="claim-button" class="col-md-1">Claim</th>
+                    <th data-type="status" class="col-md-1">Status</th>
+                  </tr>
+                  <tr class="row form-group contract-data-template" style="text-align: center; display: none;">
+                    <td data-type="funds" class="col-md-1"></td>
+                    <td data-type="user" class="col-md-1"></td>
+                    <td data-type="activity" class="col-md-2"></td>
+                    <td data-type="goal" class="col-md-1"></td>
+                    <td data-type="settlement_date" class="col-md-1"></td>
+                    <td data-type="charity-display" class="col-md-2"></td>
+                    <td data-type="fund-button" class="col-md-1"><a href="#" class="btn btn-primary action-button fund-button">Fund</a></td>
+                    <td data-type="tweet-button" class="col-md-1"><a href="#" class="btn btn-primary action-button tweet-button">Tweet</a></td>
+                    <td data-type="claim-button" class="col-md-1"><a href="#" class="btn btn-primary action-button claim-button">Claim</a></td>
+                    <td data-type="status" class="col-md-1">
+                        <span class="contract-info needs-wins-on-none">Not yours</span>
+
+                        <span class="contract-info needs-wins-on-yes needs-undecided">Win if they make it</span>
+                        <span class="contract-info needs-wins-on-no needs-undecided">Win if they fail</span>
+
+                        <span class="contract-info needs-i-won needs-key-not-ready">Payable soon</span>
+
+                        <span class="contract-info needs-wins-on-yes needs-i-won">You made it!</span>
+                        <span class="contract-info needs-wins-on-no needs-i-won">You get a donation!</span>
+
+                        <span class="contract-info needs-wins-on-yes needs-i-lost">You lose</span>
+                        <span class="contract-info needs-wins-on-no needs-i-lost">No donation</span>
+                    </td>
+                  </tr>
+
+              </tbody></table>
+
+               <hr />
+
+              <form id="import-form" class="form-horizontal">
                 <fieldset>
-                  <div class="form-group">
-                    <label for="mnemonic" class="col-md-2 control-label">Secret</label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="mnemonic" placeholder="Your Secret">
-                      <br />
-                      <input type="button" class="btn btn-primary" id="confirm-mnemonic-button" value="I have made a copy of these words, and I will keep them secret." />
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="public-key" class="col-md-2 control-label">Public Key</label>
-                    <div class="col-md-10">
-                      <span class="form-control" id="public-key"></span>
-                    </div>
+                  <div class="row form-group load-row" style="text-align:center">
+                    <span data-type="add" class="col-md-8"><input id="import-contract-url" name="import-contract-url" type="text" placeholder="Load from URL" class="form-control" /></span>
+                    <span data-type="add" class="col-md-2">&nbsp;</span>
+                    <span data-type="load-button" class="col-md-2"><button type="submit" class="btn btn-primary action-button load-button">Load</button></span>
                   </div>
                 </fieldset>
               </form>
-      </div>
-    </div>
+
+
+
+    </div><!--/row-->
   </div>
+</section>
 
-  <div class="individuals-only list-view">
-  <a class="linkable-anchor" name="connect">&nbsp;</a>
+<section class="container-fluid goal-view-section" id="section6">
+
+</section>
+
+
+<footer id="footer">
+  <div class="container-fluid">
+    <div class="row">    
+    </div><!--/row-->
   </div>
+</footer>
 
-  <div class="individuals-only list-view panel panel-default" id="connect-section" >
-    <div class="panel-heading">
-      <h4 class="panel-title">Connect to RunKeeper</h4>
-    </div>
-    <div id="" class="">
-      <div class="panel-body">
+	<!-- script references -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/scripts.js"></script>
 
-              <form class="form-horizontal">
-                <fieldset>
-                  <div class="form-group">
-                    <label for="user" class="col-md-2 control-label">Athlete</label>
-                    <div class="col-md-10">
-                      <div class="athlete-disconnected">
-                      <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user">Connect to RunKeeper</a>
-                      <p>
-                      <br />
-                      We need the athlete to connect to provide permission to check whether you reach your goal.
-                      <br />
-                      You can skip this step if you are are not the person you want to track, but that person will need to provide permission for us to confirm that they have reached their goal.
-                      </p>
-                      </div>
-                      <div class="athlete-connected">
-                      <p>
-                      You are connected as <span class="badge" id="connected-athlete-display"></span>.
-                      </p>
-                      <p>
-                      You can disconnect from <a href="http://runkeeper.com/settings/apps">the settings page at runkeeper.com</a>.
-                      <br />
-                      However, if you disconnect, we will no longer be able to confirm that you have reached your goal.
-                      </p>
-                      </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+    <script src="js/bitcore.js"></script>
+    <script src="js/bitcore_monkey_patches.js"></script>
+    <script src="js/mnemonic.js"></script>
+    <script src="js/bootbox.min.js"></script>
+    <script src="js/bitpact.js"></script>
+    <script>
+    initialize_page();
+    </script>
 
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
-
-      </div>
-    </div>
-  </div>
-
-  <div class="individuals-only list-view">
-  <a class="linkable-anchor" name="set-goal">&nbsp;</a>
-  </div>
-
-  <div class="panel panel-default individuals-only list-view" id="goal-section">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        Make a pact
-      </h4>
-    </div>
-    <div >
-      <div class="panel-body">
-              <form action="#view-single-goal" id="set-goal-form" class="form-horizontal">
-                <input id="override-with-existing-fact-id" class="for-debugging" />
-                <fieldset>
-                  <div class="form-group">
-                    <label for="user" class="col-md-2 control-label">Athlete</label>
-                    <div class="col-md-4">
-                      <input type="text" class="form-control" id="user" placeholder="User on RunKeeper" value="">
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="activity" class="col-md-2 control-label">Activity</label>
-                    <div class="col-md-4">
-                    <select class="form-control" id="activity">
-                        <option value=""></option>
-                        <option data-verb="run" data-unit="m" value="running">Running</option>
-                        <option data-verb="walk" data-unit="m" value="walking" selected>Walking</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="measurement" class="col-md-2 control-label">Measurement</label>
-                    <div class="col-md-4">
-                    <select class="form-control" id="measurement">
-                        <option value="total_distance">Distance (Total)</option>
-                        <option value="cumulative_distance" selected>Distance (Cumulative)</option>
-                      </select>
-                    </div>
-                  </div>
-
-
-                  <div class="form-group">
-                    <label for="target" class="col-md-2 control-label">Goal</label>
-                    <div class="col-md-3">
-                      <input size="8" style="text-align:right" type="text" class="form-control" id="goal" placeholder="Goal (meters)" value=""> 
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="settlement_date" class="col-md-2 control-label">Deadline</label>
-                    <div class="col-md-2">
-                      <input style="text-align:right" size="8" type="text" class="form-control" id="settlement_date" placeholder="Date" value="">
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="charity-select" class="col-md-2 control-label">Charity</label>
-                    <div class="col-md-4">
-                    <select class="form-control" id="charity-select">
-                        <option value="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3">Chika Edgar Kickboxing Sponsorship</option>
-                        <option value="other">Other (enter public key below)</option>
-                      </select> 
-                    </div>
-                  </div>
-                  <div class="form-group" id="charity-public-key-group">
-                     <label for="charity-public-key" class="col-md-2 control-label">Charity Public Key</label>
-                    <div class="col-md-8">
-                      <input type="text" class="form-control" id="charity-public-key" placeholder="Charity Public Key">
-                    </div>
-                  </div>
-                  <div class="form-group" id="is-testnet-group">
-                     <label for="is-testnet" class="col-md-2 control-label">Network</label>
-                    <div class="col-md-8">
-                      <input id="is-testnet" value="1" type="checkbox"> Test network
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-md-10 col-md-offset-2">
-                      <button id="set-goal-submit" type="submit" class="btn btn-primary">Set this goal</button>
-                      <br />
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
-      </div>
-    </div>
-  </div>
-
-
+<!--
   <div class="charities-only list-view">
   <a class="linkable-anchor charities-only" name="import">&nbsp;</a>
   </div>
@@ -322,171 +406,8 @@ Play with it if you like, but don't put in any serious money.
       </div>
     </div>
   </div>
+-->
 
-  <a class="linkable-anchor list-view" name="claim">&nbsp;</a>
-
-  <div class="panel panel-default list-view" id="claim-section">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-          <span class="individual-only">Claim winning funds</span>
-          <span class="charity-only">Transfer funds</span>
-      </h4>
-    </div>
-    <div >
-      <div class="panel-body">
-              <table id="claim-form" class="table table-striped">
-                  <tr class="row form-group" style="text-align:center">
-                    <th data-type="funds" class="col-md-1">Funds</th>
-                    <th data-type="user" class="col-md-2">Athlete</th>
-                    <th data-type="activity" class="col-md-2">Activity</th>
-                    <th data-type="goal" class="col-md-1">Goal</th>
-                    <th data-type="settlement_date" class="col-md-2">Deadline</th>
-                    <th data-type="charity-address" class="col-md-2">Charity</th>
-                    <th data-type="view-button" class="col-md-1">View</th>
-                  </tr>
-                  <tr class="row form-group contract-data-template"  style="text-align:center">
-                    <td data-type="funds" class="col-md-1"></td>
-                    <td data-type="user" class="col-md-2"></td>
-                    <td data-type="activity" class="col-md-2"></td>
-                    <td data-type="goal" class="col-md-1"></td>
-                    <td data-type="settlement_date" class="col-md-2"></td>
-                    <td data-type="charity-display" class="col-md-2"></td>
-                    <td data-type="view-button" class="col-md-1"><a href="#view-single-goal" class="btn btn-primary action-button view-button">View</a></td>
-                  </tr>
-
-              </table>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-
-  <div class="single-goal-view ">
-  <a class="linkable-anchor" id="view-single-goal" name="view-single-goal">&nbsp;</a>
-  </div>
-
-  <div class="panel panel-default " id="goal-view-section">
-    <div class="panel-heading">
-      <h4 class="panel-title">
-        <span class="view-goal-form-title">View a pact</span>
-        <span class="view-goal-form-loading">Loading...</span>
-
-        <span class="contract-info needs-wins-on-none">You do not have either key for this pact.</span>
-
-        <span class="contract-info needs-wins-on-yes needs-undecided">You get paid if you make it.</span>
-        <span class="contract-info needs-wins-on-no needs-undecided">You get a donation if they fail.</span>
-
-        <span class="contract-info needs-i-won needs-key-not-ready">The key should be issued soon.</span>
-
-        <span class="contract-info needs-wins-on-yes needs-i-won">You made it!</span>
-        <span class="contract-info needs-wins-on-no needs-i-won">They missed their goal, you get a donation!</span>
-
-        <span class="contract-info needs-wins-on-yes needs-i-lost">You lose.</span>
-        <span class="contract-info needs-wins-on-no needs-i-lost">They made it, no donation this time.</span>
-
-      </h4>
-    </div>
-    <div >
-      <div class="panel-body">
-
-              <div id="goal-view-info-section-top">
-              <span id="goal-view-balance-container" class="badge"><span id="goal-view-balance">0</span> paid so far</span> 
-              </div>
-
-              <form id="view-goal-form" class="form-horizontal">
-                <fieldset>
-                  <div class="form-group">
-                    <label for="view-user" class="col-md-2 control-label">Athlete</label>
-                    <div class="col-md-4">
-                      <span class="completed-form-control" id="view-user"></span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="view-activity" class="col-md-2 control-label">Activity</label>
-                    <div class="col-md-4">
-                    <span class="completed-form-control" id="view-activity"></span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="view-target" class="col-md-2 control-label">Goal</label>
-                    <div class="col-md-2">
-                      <span style="text-align:right" type="text" class="completed-form-control" id="view-goal"></span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="view-settlement_date" class="col-md-2 control-label">Deadline</label>
-                    <div class="col-md-2">
-                      <span style="text-align:right" size="8" type="text" class="completed-form-control" id="view-settlement_date"></span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="view-charity-display-name" class="col-md-2 control-label">Charity</label>
-                    <div class="col-md-4">
-                    <span class="completed-form-control" id="view-charity-display-name"></span>
-                    </div>
-                  </div>
-                 <div class="form-group" id="view-user-public-key-group">
-                     <label for="view-user-public-key" class="col-md-2 control-label">User Public Key</label>
-                    <div class="col-md-8">
-                      <span class="completed-form-control" id="view-user-public-key"></span>
-                    </div>
-                  </div>
-
-                  <div class="form-group" id="view-charity-public-key-group">
-                     <label for="view-charity-public-key" class="col-md-2 control-label">Charity Public Key</label>
-                    <div class="col-md-8">
-                      <span class="completed-form-control" id="view-charity-public-key"></span>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <div class="col-md-10 col-md-offset-2">
-                      <button id="view-goal-store" type="submit" class="btn btn-primary">Store for later</button>
-                      &nbsp;
-
-                      <button type="submit" class="btn btn-primary action-button fund-button" id="single-fund-button">Fund</button>
-                      <button type="submit" class="btn btn-primary action-button claim-button" disabled="disabled" id="single-claim-button">Claim</button></span>
-                      &nbsp;
-                      <a href="#" target="twitter_window" id="tweet-button" type="submit" class="btn btn-primary action-button tweet-button">Tweet</a>
-                      <br />
-                    </div>
-                  </div>
-                </fieldset>
-              </form>
-
-              <div id="goal-view-info-section-bottom">
-              <span id="goal-view-reality-key-link-container" class=""><a href="#" id="goal-view-reality-key-link"><img width="16" height="16" src="img/realitykeys_32.png"></a></span>
-              </div>
-
-
-      </div>
-    </div>
-  </div>
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
-    <script src="js/sb-admin.js"></script>
-
-    <!-- Page-Level Plugin Scripts - Dashboard -->
-
-    <!-- Page-Level Demo Scripts - Dashboard - Use for reference -->
-
-
-    <script src="js/bitcore.js"></script>
-    <script src="js/bitcore_monkey_patches.js"></script>
-    <script src="js/mnemonic.js"></script>
-    <script src="js/bootbox.min.js"></script>
-    <script src="js/bitpact.js"></script>
-    <script>
-    initialize_page();
-    </script>
 
   </body>
 </html>

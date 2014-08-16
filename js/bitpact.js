@@ -536,9 +536,11 @@ console.log(c251t_tx_hex_wrong);
         $('body').removeClass('mnemonic-created-and-confirmed');
         if (ng) {
             $('#public-key').text('');
+            $('.public-key-display').hide();
             $('#confirm-mnemonic-button').attr('disabled', 'disabled');
         } else {
             $('#confirm-mnemonic-button').removeAttr('disabled');
+            //$('.public-key-display').show();
         } 
 
         return false;
@@ -570,6 +572,7 @@ console.log(c251t_tx_hex_wrong);
 
         $('body').addClass('mnemonic-created-and-confirmed');
         $('#public-key').text(k['pub']);
+        $('.public-key-display').show();
 
     }
 
@@ -578,7 +581,7 @@ console.log(c251t_tx_hex_wrong);
         //bootbox.alert('Please pay:<br />'+c['address']); 
 
         var url = sharing_url(c, false);
-        $('#view-single-goal').attr('name', url);
+        $('#section3').attr('name', url);
 
         populate_contract_and_append_to_display(c);
         display_single_contract(c);
@@ -608,7 +611,7 @@ console.log(c251t_tx_hex_wrong);
                 console.log(data);
             }
         });
-
+        return false;
     }
 
     function hash_to_contract(import_hash) {
@@ -655,12 +658,13 @@ console.log(c251t_tx_hex_wrong);
         }
 
         var url = sharing_url(c, false);
-        $('#view-single-goal').attr('name', url);
+        $('#section3').attr('name', url);
 
         // Should already be this, but changing it now seems to force the page to jump properly
         document.location.hash = '#'+url;
 
         display_single_contract(c);
+        $(document).scrollTop( $("#section3").offset().top );
 
         return false;
 
@@ -707,6 +711,7 @@ console.log(c251t_tx_hex_wrong);
 
                 store_contract(data);
                 reflect_contract_added(data);
+                $(document).scrollTop( $("#section3").offset().top );
             },
             error: function(data) {
                 console.log("got error from fake");
@@ -718,6 +723,9 @@ console.log(c251t_tx_hex_wrong);
     }
 
     function wins_on_for_stored_keys(c) {
+        if (c == null) {
+            return false;
+        }
         if (stored_priv_for_pub(c['yes_user_pubkey'])) {
             return 'Yes';
         } else if (stored_priv_for_pub(c['no_user_pubkey'])) {
@@ -740,20 +748,20 @@ console.log(c251t_tx_hex_wrong);
         $('.view-goal-form-title').hide();
 
         // Hide the form part until we load it
-        $('#goal-view-section').find('.completed-form-control').css('visibility', 'hidden');
+        $('.goal-view-section').find('.completed-form-control').css('visibility', 'hidden');
 
         // ...but show the overall section so we can see it loading
-        $('#goal-view-section').css('visibility', 'visible');
+        $('.goal-view-section').css('visibility', 'visible');
 
         c['charity_display'] = charity_display_for_pubkey(c['no_user_pubkey']);
 
         var wins_on = wins_on_for_stored_keys(c);
         if (wins_on == 'Yes') {
-            $('#goal-view-section').addClass('wins-on-yes').removeClass('wins-on-no').removeClass('wins-on-none');
+            $('.goal-view-section').addClass('wins-on-yes').removeClass('wins-on-no').removeClass('wins-on-none');
         } else if (wins_on == 'No') {
-            $('#goal-view-section').addClass('wins-on-no').removeClass('wins-on-yes').removeClass('wins-on-none');
+            $('.goal-view-section').addClass('wins-on-no').removeClass('wins-on-yes').removeClass('wins-on-none');
         }  else {
-            $('#goal-view-section').addClass('wins-on-none').removeClass('wins-on-yes').removeClass('wins-on-no');
+            $('.goal-view-section').addClass('wins-on-none').removeClass('wins-on-yes').removeClass('wins-on-no');
         }
 
 
@@ -784,7 +792,9 @@ console.log(c251t_tx_hex_wrong);
                 //display_contract(data);
 
                 data['address'] = p2sh_address(data);
+                $('#view-contract-payable-address').text(data['address']);
 
+                /*
                 $('#view-user').text(data['user']);
                 $('#view-activity').text(data['activity']);
                 $('#view-measurement').text(data['measurement']);
@@ -793,6 +803,7 @@ console.log(c251t_tx_hex_wrong);
                 $('#view-charity-display-name').text(data['charity_display']);
                 $('#view-charity-public-key').text(data['no_user_pubkey']);
                 $('#view-user-public-key').text(data['yes_user_pubkey']);
+                */
 
                 $('#goal-view-reality-key-link').attr('href', oracle_view_base + c['id']).show();
                 $('#goal-view-reality-key-link-container').show();
@@ -807,13 +818,7 @@ console.log(c251t_tx_hex_wrong);
                 } else {
                     $('#view-goal-store').show();
                 }
-
-                $('.fund-button').unbind('click').click( function() {
-                    bootbox.alert('Please pay<br />'+data['address']);
-                    return false;
-                });
-
-                var txt = '@bitpact I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
+                var txt = '@bymycoins I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
                 txt = txt + ' ' + sharing_url(data, true);
                 $('#tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
@@ -821,36 +826,38 @@ console.log(c251t_tx_hex_wrong);
                 section_title = section_title.charAt(0).toUpperCase()+section_title.substring(1); // capitalize first letter
 
                 // Should already be visible but do it again in case something happened out of sequence
-                $('#goal-view-section').css('visibility', 'visible');
-                $('#goal-view-section').find('.completed-form-control').css('visibility', 'visible');
+                $('.goal-view-section').css('visibility', 'visible');
+                $('.goal-view-section').find('.completed-form-control').css('visibility', 'visible');
 
                 // Hide the loading text 
                 $('.view-goal-form-loading').hide();
                 $('.view-goal-form-title').text(section_title);
                 $('.view-goal-form-title').show();
 
-                $('#goal-view-section').find('form').css('visibility', 'visible');
+                $('.goal-view-section').find('form').css('visibility', 'visible');
 
                 var winner = data['winner'];
                 var is_winner_decided = (winner != null);
 
                 var i_won = (winner == wins_on);
                 if (is_winner_decided) {
-                    $('#goal-view-section').addClass('decided').removeClass('undecided');
+                    $('.goal-view-section').addClass('decided').removeClass('undecided');
                     if (i_won) {
-                        $('#goal-view-section').addClass('i-won').removeClass('i-lost');
+                        $('.goal-view-section').addClass('i-won').removeClass('i-lost');
                     } else {
-                        $('#goal-view-section').addClass('i-lost').removeClass('i-won');
+                        $('.goal-view-section').addClass('i-lost').removeClass('i-won');
                     }
                     if (data['winner_privkey']) {
-                        $('#goal-view-section').addClass('key-ready').removeClass('key-not-ready');
+                        $('.goal-view-section').addClass('key-ready').removeClass('key-not-ready');
                     } else {
-                        $('#goal-view-section').addClass('key-not-ready').removeClass('key-ready');
+                        $('.goal-view-section').addClass('key-not-ready').removeClass('key-ready');
                     }
                 } else {
-                    $('#goal-view-section').addClass('undecided').removeClass('decided');
-                    $('#goal-view-section').removeClass('i-lost').removeClass('i-won');
+                    $('.goal-view-section').addClass('undecided').removeClass('decided');
+                    $('.goal-view-section').removeClass('i-lost').removeClass('i-won');
                 }
+
+                $('#section3').addClass('populated');
 
                 //$('#single-claim-button').unbind('click').text('Checking balance...');
                 // Now we have the address, we can get the balance
@@ -862,6 +869,17 @@ console.log(c251t_tx_hex_wrong);
                     dataType: 'json', 
                     success: function(tx_data) {
                         var balance = tx_data['data']['balance'];
+
+                        var contract_text = {
+                            'activity_verb': data['activity'], // $('#activity').find(':selected').attr('data-verb'),
+                            'goal_text': data['goal'] + ' meters',
+                            'settlement_date': data['settlement_date'],
+                            'charity_display': data['charity_display'],
+                            'user': data['user']
+                        }
+                        $('.view-contract-title-start').text(formatted_title_start(contract_text, true));
+                        $('.view-contract-title-end').text(formatted_title_end(contract_text, true));
+
                         $('#goal-view-balance').text(balance);
                         $('#goal-view-balance-container').show();
                         if (balance > 0 && i_won && data['winner_privkey']) {
@@ -1111,6 +1129,7 @@ console.log(txHex);
 
     function append_contract_to_display(c) {
 
+
         var frm = $('#claim-form');
 
         // The address should uniquely identify the contract, so only ever add the same address once.
@@ -1119,6 +1138,44 @@ console.log(txHex);
         }
 
         var row = frm.find('.contract-data-template').clone().removeClass('contract-data-template').addClass('contract-data-row').attr('data-address',c['address']);
+
+        row.find('.fund-button').unbind('click').click( function() {
+            bootbox.alert('Please pay<br />'+c['address']);
+            return false;
+        });
+
+        var txt = '@bymycoins I will complete ' + c['activity'] + ' ' + c['goal'] + 'm by ' + c['settlement_date'] + ' or pay ' + c['charity_display'];
+        txt = txt + ' ' + sharing_url(c, true);
+        row.find('.tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
+
+        var wins_on = wins_on_for_stored_keys(c);
+        var winner = c['winner'];
+        var is_winner_decided = (winner != null);
+
+        var i_won = (winner == wins_on);
+        if (is_winner_decided) {
+            row.addClass('decided').removeClass('undecided');
+            if (i_won) {
+                row.addClass('i-won').removeClass('i-lost');
+            } else {
+                row.addClass('i-lost').removeClass('i-won');
+            }
+            if (data['winner_privkey']) {
+                row.addClass('key-ready').removeClass('key-not-ready');
+            } else {
+                row.addClass('key-not-ready').removeClass('key-ready');
+            }
+        } else {
+            row.addClass('undecided').removeClass('decided');
+            row.removeClass('i-lost').removeClass('i-won');
+        }
+
+        if (wins_on == 'Yes') {
+            row.addClass('wins-on-yes');
+        } else if (wins_on == 'No') {
+            row.addClass('wins-on-no');
+        }
+
         var lnk = $('<a>');
         if (c['is_testnet']) {
             lnk.attr('href', 'https://tbtc.blockr.io/address/info/' + format_address(c['address']));
@@ -1140,17 +1197,8 @@ console.log(txHex);
         }
         row.find( "[data-type='charity-display']" ).text(charity_display);
 
-        row.find('.view-button').click( function() {
-            //bootbox.alert(sharing_url(c));
-            var url = sharing_url(c, false);
-            $('#view-single-goal').attr('name', url);
-            $(this).attr('href', '#'+url);
-            display_single_contract(c);
-            $(document).scrollTop( $("#view-single-goal").offset().top );
-            return true;
-        } );
-
         if (c['balance'] > 0) {
+            row.addClass('funded');
             row.find('.claim-button').click( function() {
                 //alert('claiming');
                 fact_id = c['id'];
@@ -1164,6 +1212,11 @@ console.log(txHex);
                             alert('Sorry, winner not announced yet');
                             return;
                         }
+
+                        var winner = data['winner'];
+                        
+
+
                         if (data.winner == 'Yes') {
                             var winner_privkey_wif = data['winner_privkey'];
                             if (winner_privkey_wif == null) {
@@ -1222,9 +1275,6 @@ console.log(txHex);
                 return false;
             });
         
-            row.find('.claim-button').show();
-        } else {
-            row.find('.claim-button').hide();
         }
 
         row.insertAfter('.contract-data-template:last');
@@ -1335,10 +1385,10 @@ console.log(txHex);
         }
         if (ok) {
             //$('#set-goal-submit').removeAttr('disabled');
-            $('#authenticate-runkeeper-user').hide();
+            $('body').addClass('athlete-connected');
         } else {
             //$('#set-goal-submit').attr('disabled', 'disabled');
-            $('#authenticate-runkeeper-user').show();
+            $('body').removeClass('athlete-connected');
         }
         return true;
     }
@@ -1375,16 +1425,16 @@ console.log(txHex);
 
     function use_case_toggle(use_case) {
         if (use_case == 'individual') {
-            $('#connect-section').show();
-            $('#goal-section').show();
+            $('.connect-section').show();
+            $('.goal-section').show();
             $('.charity-only').hide();
             $('.individual-only').show();
             $(this).addClass('active');
             $('#page-charity-switch').removeClass('active');
         }
         if (use_case == 'charity') {
-            $('#connect-section').hide();
-            $('#goal-section').hide();
+            $('.connect-section').hide();
+            $('.goal-section').hide();
             $('.charity-only').show();
             $('.individual-only').hide();
             $(this).addClass('active');
@@ -1392,24 +1442,176 @@ console.log(txHex);
         }
     }
 
+    function select_to_icon(icon_class, attribute_name, selected_item) {
+        $('.'+icon_class+':not([data-activity='+selected_item+'])').removeClass('selected');
+        $('.'+icon_class+'[data-activity='+selected_item+']').addClass('selected');
+    }
+
+    function update_goal_text(frm) {
+        frm.find('.activity-verb').text( $('#activity').find(':selected').attr('data-verb') );
+        frm.find('.goal-text').text( $('#goal').val() + ' meters' );
+        frm.find('.settlement-date-text').text( $('#settlement_date').val() );
+        frm.find('.charity-display-text').text( $('#charity-select').find(':selected').text() );
+        var user = $('#user').val();
+        var user_text = ( user == '' ) ? '' : ', '+user+',';
+        frm.find('.user-text').text( user_text );
+        var contract_text = {
+            'activity_verb': $('#activity').find(':selected').attr('data-verb'),
+            'goal_text': $('#goal').val() + ' meters',
+            'settlement_date': $('#settlement_date').val(),
+            'charity_display': $('#charity-select').find(':selected').text(),
+            'user': $('#user').val()
+        }
+        $('.contract-title-start').text(formatted_title_start(contract_text, false));
+        $('.contract-title-end').text(formatted_title_end(contract_text, false));
+    }
+
+    function formatted_title_start(ct, past) {
+        if (past) {
+            txt = ct['user'] + ' swore';
+            if (ct['total_received']) {
+                txt += ' by ' + ct['total_received'] + ' BTC';
+            } 
+            txt += ' to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+ct['settlement_date'];  
+            txt = txt.charAt(0).toUpperCase()+txt.substring(1); // capitalize first letter
+            return txt;
+        }
+        var txt = 'I';
+        if (ct['user'] != '') {
+            txt += ', '+ct['user'] + ',';
+        }
+        txt += ' swear by my coins to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+ct['settlement_date'];  
+        return txt;
+    }
+
+    function formatted_title_end(ct, past) {
+        return '...or they will go to ' + ct['charity_display'];
+    }
+
+    function handle_set_goal_form_change() {
+        update_goal_text($('#set-goal-form'));
+        if ( $('#user').val() == '') {
+            $('#set-goal-form').addClass('need-connect');
+        } else {
+            $('#set-goal-form').removeClass('need-connect');
+        }
+    }
+
+    function register_contract() {
+
+        var url = oracle_api_base + '/runkeeper/new';
+        params = {
+            'user': $('#user').val(),
+            'activity': $('#activity').val(),
+            'measurement': $('#measurement').val(),
+            'goal': $('#goal').val(),
+            'settlement_date': $('#settlement_date').val(),
+            'comparison': 'ge',
+            'objection_period_secs': (24*60*60),
+            'accept_terms_of_service': 'current',
+        };
+        var wins_on = 'Yes';
+        var user_pubkey = $('#public-key').text();
+        var is_testnet = $('#is-testnet').is(':checked');
+        var charity_display = $('#charity-select').find(':selected').text();
+        var charity_pubkey = $('#charity-select').val();
+        if (charity_pubkey == 'other') {
+            charity_pubkey = $('#charity-public-key').val();
+            charity_display = '';
+        }
+        if ( (user_pubkey == '') || (charity_pubkey == '') ) {
+            console.log('missing a pubkey');
+            return false;
+        }
+        // debugging thing to use an existing fact instead
+        var response;
+        var override_with_fact_id = parseInt($('#override-with-existing-fact-id').val());
+        if (override_with_fact_id > 0) {
+            var fact_id = 
+            url = oracle_api_base + '/runkeeper/'+override_with_fact_id+'/'+oracle_param_string
+            var response = $.ajax({
+                url: url, 
+                async: false,
+                type: 'GET',
+                dataType: 'json', 
+            });
+        } else {
+            var response = $.ajax({
+                url: url, 
+                async: false,
+                type: 'POST',
+                data: params,
+                dataType: 'json', 
+            });
+        }
+        if (response.status != 200) {
+            console.log(response);
+            console.log(response.responseJSON['errors']);
+            bootbox.alert('Sorry, could not register the fact with Reality Keys.');
+            return false;
+        }
+        var data = response.responseJSON;
+        data['wins_on'] = wins_on;
+        data['yes_user_pubkey'] = user_pubkey;
+        data['no_user_pubkey'] = charity_pubkey;
+        data['charity_display'] = charity_display;
+        data['is_testnet'] = is_testnet;
+        data['address'] = p2sh_address(data);
+
+        var jump_to = '#' + sharing_url(data, false);
+
+        store_contract(data);
+        reflect_contract_added(data);
+
+        console.log("submitted, resulting data is:");
+        console.log(data);
+        document.location.hash = jump_to;
+        $(document).scrollTop( $("#section3").offset().top );
+        console.log(", resulting data is:");
+        console.log(data);
+        return false;
+
+    }
+
     function initialize_page() {
+
+        // Default the settlement date to 1 week from today
+        var dt = new Date();
+        dt.setDate(dt.getDate() + 7);
+        var default_settlement_date = dt.toISOString().slice(0, 10);
+        $('#settlement_date').val(default_settlement_date);
+
+        $('#set-goal-form').change( function() {
+            handle_set_goal_form_change();   
+        });
 
         var athlete = url_parameter_by_name('completed_profile');
         if (athlete) {
             store_athlete(athlete);
+            $('#user').val(athlete);
+            handle_set_goal_form_change();   
         }
+
+
+        select_to_icon('activity-icon', 'data-activity', $('#activity').val());
+        $('.activity-icon').click( function() {
+            var selected_val = $(this).attr('data-activity');
+            $('#activity').val( selected_val );
+            select_to_icon('activity-icon', 'data-activity', selected_val);
+            handle_set_goal_form_change();   
+        } );
+        $('.charity-icon').click( function() {
+            $('#charity-select').val( $(this).attr('data-charity') );
+            handle_set_goal_form_change();   
+        } );
 
         var default_athlete = load_default_athlete();
         if (default_athlete != null) {
-            $('#connected-athlete-display').text(default_athlete);
-            $('.athlete-connected').show();
-            $('.athlete-disconnected').hide();
+            $('body').addClass('athlete-connected');
             $('#user').val(default_athlete);
-        } else {
-            $('#connected-athlete-display').html('');
-            $('.athlete-connected').hide();
-            $('.athlete-disconnected').show();
-        }
+            handle_set_goal_form_change();   
+        } 
+        validate_user( $('#user') );
 
         $('#settlement_date').datepicker(
             {"dateFormat": 'yy-mm-dd' }
@@ -1422,6 +1624,7 @@ console.log(txHex);
             $('#mnemonic').val(seed_to_mnemonic(default_seed['seed']).toWords().join(' '));
             $('#is-testnet').prop('checked', default_seed['is_testnet']);
             $('#public-key').text(default_seed['pub']);
+            $('.public-key-display').show();
         }
 
         if ($('#mnemonic').val() == '') {
@@ -1438,6 +1641,10 @@ console.log(txHex);
 
         $('#confirm-mnemonic-button').unbind('click').click( function() {
             handle_mnemonic_confirm($('#mnemonic'));
+            if ($(this).hasClass('do-set-goal-submit')) {
+                register_contract();
+                $(this).removeClass('do-set-goal-submit');
+            }
             return false;
         });
 
@@ -1446,14 +1653,14 @@ console.log(txHex);
         handle_mnemonic_change($('#mnemonic'));
 
         if ($('#charity-select').val() != 'other') {
-            $('#charity-public-key-group').hide();
+            $('#charity-public-key').hide();
         } 
 
         $('#charity-select').change( function() {
             if ($(this).val() == 'other') {
-                $('#charity-public-key-group').show();
+                $('#charity-public-key').show();
             } else {
-                $('#charity-public-key-group').hide();
+                $('#charity-public-key').hide();
             }
         });
 
@@ -1468,73 +1675,15 @@ console.log(txHex);
             return true;
         });
 
-        $('#set-goal-form').submit( function() {
-            var url = oracle_api_base + '/runkeeper/new';
-            params = {
-                'user': $('#user').val(),
-                'activity': $('#activity').val(),
-                'measurement': $('#measurement').val(),
-                'goal': $('#goal').val(),
-                'settlement_date': $('#settlement_date').val(),
-                'comparison': 'ge',
-                'objection_period_secs': (24*60*60),
-                'accept_terms_of_service': 'current',
-            };
-            var wins_on = 'Yes';
-            var user_pubkey = $('#public-key').text();
-            var is_testnet = $('#is-testnet').is(':checked');
-            var charity_display = $('#charity-select').find(':selected').text();
-            var charity_pubkey = $('#charity-select').val();
-            if (charity_pubkey == 'other') {
-                charity_pubkey = $('#charity-public-key').val();
-                charity_display = '';
-            }
-            if ( (user_pubkey == '') || (charity_pubkey == '') ) {
-                console.log('missing a pubkey');
-                return false;
-            }
-            // debugging thing to use an existing fact instead
-            var response;
-            var override_with_fact_id = parseInt($('#override-with-existing-fact-id').val());
-            if (override_with_fact_id > 0) {
-                var fact_id = 
-                url = oracle_api_base + '/runkeeper/'+override_with_fact_id+'/'+oracle_param_string
-                var response = $.ajax({
-                    url: url, 
-                    async: false,
-                    type: 'GET',
-                    dataType: 'json', 
-                });
-            } else {
-                var response = $.ajax({
-                    url: url, 
-                    async: false,
-                    type: 'POST',
-                    data: params,
-                    dataType: 'json', 
-                });
-            }
-            if (response.status != 200) {
-                console.log(response);
-                console.log(response.responseJSON['errors']);
-                bootbox.alert('Sorry, could not register the fact with Reality Keys.');
-                return false;
-            }
-            var data = response.responseJSON;
-            data['wins_on'] = wins_on;
-            data['yes_user_pubkey'] = user_pubkey;
-            data['no_user_pubkey'] = charity_pubkey;
-            data['charity_display'] = charity_display;
-            data['is_testnet'] = is_testnet;
-            data['address'] = p2sh_address(data);
+        update_goal_text($('#set-goal-form'));
 
-            var jump_to = '#' + sharing_url(data, false);
-            $(this).closest('form').attr('action', jump_to);
-            store_contract(data);
-            reflect_contract_added(data);
+        $('#set-goal-submit').click( function() {
+            register_contract();
+        });
 
-            console.log("submitted, resulting data is:");
-            console.log(data);
+        $('.jump-to-secret').click( function() {
+            // Mark the button on the secret screen so we know to submit the form after doing the mnemonic confirmation
+            $('#confirm-mnemonic-button').addClass('do-set-goal-submit');
             return true;
         });
 
