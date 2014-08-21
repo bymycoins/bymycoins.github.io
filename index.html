@@ -197,7 +197,7 @@ Some people may prefer single instance, but for now let's keep it simple
             <option value="other">Other (enter public key below)</option>
         </select> 
         <br />
-        <input type="text" id="charity-public-key" placeholder="Charity Public Key">
+        <input class="form-control" type="text" id="charity-public-key" placeholder="Charity Public Key">
     </div>
   </div>
  </form>
@@ -251,8 +251,7 @@ Some people may prefer single instance, but for now let's keep it simple
       <div class="col-sm-12 text-center">
           <h2 class="contract-title-start"></h2>
           <h3 class="contract-title-end"></h3>
-          <p class="text-center">Pay this address</p>
-          <h2 id="view-contract-payable-address"></h2>
+          <h2 ><a href="#" id="view-contract-payable-address"></a></h2>
           
         <!--
           <h4><i>Tip: Anyone can pay this address! Why not ask your friends to sponsor you?</i></h4>
@@ -261,7 +260,7 @@ Some people may prefer single instance, but for now let's keep it simple
           <h4>We haven't told anyone about your pledge yet, not even the charity!</h4>
           <h4>Tweet the address of this page to <a href="https://www.twitter.com/bymycoins">@bymycoins</a>.</h4>
           <br />
-          <span class="btn btn-primary"><img src="img/icons/PNG/128/Social_Networks/twitter-128.png"></span>
+          <span class=""><a id="twitter-button" target="twitter-window" href="#"><img src="img/icons/PNG/128/Social_Networks/twitter-128.png"></a></span>
           <br />
       </div>
     </div>
@@ -301,8 +300,6 @@ Some people may prefer single instance, but for now let's keep it simple
             <a href="#" id="filter_win_on_no">Other people's goals</a>
         </div>
     </div>
-    <div class="row">
-      <div class="col-sm-12 ">
             <table id="claim-form" class="table table-striped">
                   <tbody><tr class="row form-group">
                     <th data-type="funds" class="col-md-1">Available</th>

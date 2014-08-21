@@ -343,7 +343,6 @@ console.log(c251t_tx_hex_wrong);
         }
         if (!is_update) {
             if (contract_store['contracts'][p2sh_addr]) {
-                alert('already there');
                 return; // Already there
             }
         }
@@ -678,6 +677,14 @@ console.log(c251t_tx_hex_wrong);
         return txt;
     }
 
+    function charity_display_for_form() {
+        var pubkey = $('#charity-select').val();
+        if (pubkey == 'other') {
+            pubkey = $('#charity-public-key').val();
+        } 
+        return charity_display_for_pubkey(pubkey);
+    }
+
     // TODO: This ends up duplicating a lot with display_single_contract
     function import_contract_if_required(c) {
 
@@ -804,7 +811,10 @@ console.log(c251t_tx_hex_wrong);
                 //display_contract(data);
 
                 data['address'] = p2sh_address(data);
-                $('#view-contract-payable-address').text(data['address']);
+
+                var link_addr = data['is_testnet'] ? 'https://tbtc.blockr.io/address/info/' : 'https://blockchain.info/address/';
+                link_addr += format_address(data['address']);
+                $('#view-contract-payable-address').text(data['address']).attr('href', link_addr);
 
                 /*
                 $('#view-user').text(data['user']);
@@ -832,7 +842,7 @@ console.log(c251t_tx_hex_wrong);
                 }
                 var txt = '@bymycoins I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + formatted_date(data['settlement_date']) + ' or pay ' + data['charity_display'];
                 txt = txt + ' ' + sharing_url(data, true);
-                $('#tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
+                $('#twitter-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
                 var section_title = data['user'] + ' to complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + formatted_date(data['settlement_date']);
                 section_title = section_title.charAt(0).toUpperCase()+section_title.substring(1); // capitalize first letter
@@ -1172,7 +1182,7 @@ console.log(txHex);
             } else {
                 row.addClass('i-lost').removeClass('i-won');
             }
-            if (data['winner_privkey']) {
+            if (c['winner_privkey']) {
                 row.addClass('key-ready').removeClass('key-not-ready');
             } else {
                 row.addClass('key-not-ready').removeClass('key-ready');
@@ -1291,6 +1301,9 @@ console.log(txHex);
 
         row.insertAfter('.contract-data-template:last');
         row.show();
+
+        //$('#claim-form').find('tbody').sortable();
+        $('#claim-form').sortable();
 
     }
 
@@ -1463,7 +1476,10 @@ console.log(txHex);
         frm.find('.activity-verb').text( $('#activity').find(':selected').attr('data-verb') );
         frm.find('.goal-text').text( $('#goal').val() + ' meters' );
         frm.find('.settlement-date-text').text( formatted_date($('#settlement_date').val()) );
-        frm.find('.charity-display-text').text( $('#charity-select').find(':selected').text() );
+
+        var charity_display = charity_display_for_form();
+        frm.find('.charity-display-text').text( charity_display );
+
         var user = $('#user').val();
         var user_text = ( user == '' ) ? '' : ', '+user+',';
         frm.find('.user-text').text( user_text );
@@ -1471,7 +1487,7 @@ console.log(txHex);
             'activity_verb': $('#activity').find(':selected').attr('data-verb'),
             'goal_text': $('#goal').val() + ' meters',
             'settlement_date': $('#settlement_date').val(),
-            'charity_display': $('#charity-select').find(':selected').text(),
+            'charity_display': charity_display,
             'user': $('#user').val()
         }
         $('.contract-title-start').text(formatted_title_start(contract_text, false));
