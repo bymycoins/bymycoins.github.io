@@ -734,6 +734,18 @@ console.log(c251t_tx_hex_wrong);
         return 'None'
     }
 
+    // Return a nicely-formatted date, if the browser supports it
+    // Otherwise just return which you sent us, which should by eg 2014-08-16
+    function formatted_date(iso_date) {
+        try {
+            var dt = new Date(iso_date);
+            var formatted = dt.toLocaleString('en-US', {weekday: "long", year: "numeric", month: "long", day: "numeric"});
+            return formatted;
+        } catch (e) { 
+            return iso_date;
+        }
+    }
+
     function display_single_contract(c) {
 
         //$('body').removeClass('for-list').addClass('for-single');
@@ -818,11 +830,11 @@ console.log(c251t_tx_hex_wrong);
                 } else {
                     $('#view-goal-store').show();
                 }
-                var txt = '@bymycoins I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'] + ' or pay ' + data['charity_display'];
+                var txt = '@bymycoins I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + formatted_date(data['settlement_date']) + ' or pay ' + data['charity_display'];
                 txt = txt + ' ' + sharing_url(data, true);
                 $('#tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
-                var section_title = data['user'] + ' to complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + data['settlement_date'];
+                var section_title = data['user'] + ' to complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + formatted_date(data['settlement_date']);
                 section_title = section_title.charAt(0).toUpperCase()+section_title.substring(1); // capitalize first letter
 
                 // Should already be visible but do it again in case something happened out of sequence
@@ -1144,7 +1156,7 @@ console.log(txHex);
             return false;
         });
 
-        var txt = '@bymycoins I will complete ' + c['activity'] + ' ' + c['goal'] + 'm by ' + c['settlement_date'] + ' or pay ' + c['charity_display'];
+        var txt = '@bymycoins I will complete ' + c['activity'] + ' ' + c['goal'] + 'm by ' + formatted_date(c['settlement_date']) + ' or pay ' + c['charity_display'];
         txt = txt + ' ' + sharing_url(c, true);
         row.find('.tweet-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
@@ -1450,7 +1462,7 @@ console.log(txHex);
     function update_goal_text(frm) {
         frm.find('.activity-verb').text( $('#activity').find(':selected').attr('data-verb') );
         frm.find('.goal-text').text( $('#goal').val() + ' meters' );
-        frm.find('.settlement-date-text').text( $('#settlement_date').val() );
+        frm.find('.settlement-date-text').text( formatted_date($('#settlement_date').val()) );
         frm.find('.charity-display-text').text( $('#charity-select').find(':selected').text() );
         var user = $('#user').val();
         var user_text = ( user == '' ) ? '' : ', '+user+',';
@@ -1472,7 +1484,7 @@ console.log(txHex);
             if (ct['total_received']) {
                 txt += ' by ' + ct['total_received'] + ' BTC';
             } 
-            txt += ' to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+ct['settlement_date'];  
+            txt += ' to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+formatted_date(ct['settlement_date']);  
             txt = txt.charAt(0).toUpperCase()+txt.substring(1); // capitalize first letter
             return txt;
         }
@@ -1480,7 +1492,7 @@ console.log(txHex);
         if (ct['user'] != '') {
             txt += ', '+ct['user'] + ',';
         }
-        txt += ' swear by my coins to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+ct['settlement_date'];  
+        txt += ' swear by my coins to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+formatted_date(ct['settlement_date']);  
         return txt;
     }
 
@@ -1602,6 +1614,13 @@ console.log(txHex);
         } );
         $('.charity-icon').click( function() {
             $('#charity-select').val( $(this).attr('data-charity') );
+            if ($('#charity-select').val() == 'other') {
+                $('#charity-public-key').show();
+            } else {
+                $('#charity-public-key').hide();
+            }
+
+
             handle_set_goal_form_change();   
         } );
 

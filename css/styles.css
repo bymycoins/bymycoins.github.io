@@ -64,7 +64,7 @@ a.list-group-item.active,[class*='-info'] {
     color:#444;
 }
   
-#section1, #section3, #section6 {
+#section1, #section6 {
 	background-color: #e5e5ef;
     color:#686868;
 }
@@ -74,12 +74,11 @@ a.list-group-item.active,[class*='-info'] {
     color:#ddd;
 }
 
-
-
-#section7 {
+#section3 {
 	background-color: #168ccc;
     color:#ddd;
 }
+#section3 a { color:#fff; }
 
 footer {
 	background-color:#494949;
