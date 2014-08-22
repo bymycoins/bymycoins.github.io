@@ -79,9 +79,6 @@
     .for-debugging { display:nonez }
     .linkable-anchor { padding-top: 40px; margin-top: -40px; }
 
-    .for-charities .individuals-only { display:none }
-    .for-individuals .charities-only { display:none }
-
     .view-goal-form-loading { display:none }
     section.goal-stored .view-goal-store { display: none }
 
@@ -113,6 +110,9 @@
     .goal-view-balance-container { display:none }
     .goal-view-reality-key-link-container { display:none; bottom:5px }
 
+    #set-goal-form .control-label { font-size:150% }
+    #set-goal-form .form-group { height:50px; vertical-align:middle !important }
+
 
     /* Start by hiding all the buttons on the goal setting form, then show them where necessary */
     .goal-section .set-goal-submit { display:none }
@@ -128,7 +128,7 @@
     We use visibility hidden here instead of display none to avoid confusing the browser trying to link to an anchor that isn't being displayed, which can cause strange visual effects.
     */
     .goal-view-section { visibility: hidden }
-   #mnemonic {text-align: center}
+    #mnemonic {text-align: center}
     </style>
 
 
@@ -198,8 +198,8 @@ Some people may prefer single instance, but for now let's keep it simple
   </div>
   <div class="form-group">
   	<label class="control-label col-md-6"><span class="goal-text"></span></label>
-  	<div class="col-md-2">
-        <input style="height:30px" size="8" class="form-control" type="text" id="goal" placeholder="Goal (meters)" value="1000"> 
+  	<div class="col-md-1">
+        <input style="height:36px" size="8" class="form-control" type="text" id="goal" placeholder="Goal" value="1000"> 
     </div>
   </div>
   <div class="form-group">
@@ -210,9 +210,7 @@ Some people may prefer single instance, but for now let's keep it simple
   </div>
   <div class="form-group">
   	<label class="control-label col-md-6">
-        or they go to 
-        <br />
-        <span class="charity-display-text"></span>
+        or they go to<br /><span class="charity-display-text"></span>
     </label>
   	<div class="col-md-6">
         <img class="charity-icon" data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
@@ -377,7 +375,7 @@ Some people may prefer single instance, but for now let's keep it simple
                   <div class="row form-group load-row" style="text-align:center">
                     <span data-type="add" class="col-md-8"><input id="import-contract-url" name="import-contract-url" type="text" placeholder="Load from URL" class="form-control" /></span>
                     <span data-type="add" class="col-md-2">&nbsp;</span>
-                    <span data-type="load-button" class="col-md-2"><button type="submit" class="btn btn-primary action-button load-button">Load</button></span>
+                    <span data-type="load-button" class="col-md-2"><button type="submit" class="btn btn-primary action-button load-button">Fetch from Twitter</button></span>
                   </div>
                 </fieldset>
               </form>
