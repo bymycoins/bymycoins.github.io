@@ -45,20 +45,20 @@
     tr.contract-data-row:not(.winner-no) .needs-winner-no { display:none }
     tr.contract-data-row:not(.winner-undecided) .needs-winner-undecided { display:none }
 
-    tr.contract-data-row:not(.funded) .contract-info.needs-funded{ display:none }
-    tr.contract-data-row:not(.unfunded) .contract-info.needs-unfunded{ display:none }
+    tr.contract-data-row:not(.funded) .contract-detail.needs-funded{ display:none }
+    tr.contract-data-row:not(.unfunded) .contract-detail.needs-unfunded{ display:none }
 
-    tr.contract-data-row:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
-    tr.contract-data-row:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
-    tr.contract-data-row:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
+    tr.contract-data-row:not(.wins-on-yes) .contract-detail.needs-wins-on-yes { display:none }
+    tr.contract-data-row:not(.wins-on-no) .contract-detail.needs-wins-on-no { display:none }
+    tr.contract-data-row:not(.wins-on-none) .contract-detail.needs-wins-on-none { display:none }
 
-    tr.contract-data-row:not(.decided) .contract-info.needs-decided { display:none }
-    tr.contract-data-row:not(.undecided) .contract-info.needs-undecided { display:none }
+    tr.contract-data-row:not(.decided) .contract-detail.needs-decided { display:none }
+    tr.contract-data-row:not(.undecided) .contract-detail.needs-undecided { display:none }
 
-    tr.contract-data-row:not(.key-not-ready) .contract-info.needs-key-not-ready { display:none }
+    tr.contract-data-row:not(.key-not-ready) .contract-detail.needs-key-not-ready { display:none }
 
-    tr.contract-data-row:not(.i-won) .contract-info.needs-i-won { display:none }
-    tr.contract-data-row:not(.i-lost) .contract-info.needs-i-lost { display:none }
+    tr.contract-data-row:not(.i-won) .contract-detail.needs-i-won { display:none }
+    tr.contract-data-row:not(.i-lost) .contract-detail.needs-i-lost { display:none }
 
     tr.contract-data-row:not(.funded) .btn.claim-button { visibility:hidden }
     tr.contract-data-row.undecided .btn.claim-button { visibility:hidden }
@@ -98,17 +98,17 @@
     */
     #user { display:none }
 
-    .goal-view-section:not(.wins-on-yes) .contract-info.needs-wins-on-yes { display:none }
-    .goal-view-section:not(.wins-on-no) .contract-info.needs-wins-on-no { display:none }
-    .goal-view-section:not(.wins-on-none) .contract-info.needs-wins-on-none { display:none }
+    .goal-view-section:not(.wins-on-yes) .contract-detail.needs-wins-on-yes { display:none }
+    .goal-view-section:not(.wins-on-no) .contract-detail.needs-wins-on-no { display:none }
+    .goal-view-section:not(.wins-on-none) .contract-detail.needs-wins-on-none { display:none }
 
-    .goal-view-section:not(.decided) .contract-info.needs-decided { display:none }
-    .goal-view-section:not(.undecided) .contract-info.needs-undecided { display:none }
+    .goal-view-section:not(.decided) .contract-detail.needs-decided { display:none }
+    .goal-view-section:not(.undecided) .contract-detail.needs-undecided { display:none }
 
-    .goal-view-section:not(.key-not-ready) .contract-info.needs-key-not-ready { display:none }
+    .goal-view-section:not(.key-not-ready) .contract-detail.needs-key-not-ready { display:none }
 
-    .goal-view-section:not(.i-won) .contract-info.needs-i-won { display:none }
-    .goal-view-section:not(.i-lost) .contract-info.needs-i-lost { display:none }
+    .goal-view-section:not(.i-won) .contract-detail.needs-i-won { display:none }
+    .goal-view-section:not(.i-lost) .contract-detail.needs-i-lost { display:none }
 
     .goal-view-balance-container { display:none }
     .goal-view-reality-key-link-container { display:none; bottom:5px }
@@ -347,10 +347,10 @@ Some people may prefer single instance, but for now let's keep it simple
                   </tr>
                   <tr class="contract-data-template" style="display: none;">
                     <td data-type="status-funds" class="col-md-1">
-                        <span class="contract-info needs-funded needs-i-won"><img src="img/icons/PNG/24/Shopping/cash_receiving-24.png" /></span>
-                        <span class="contract-info needs-funded needs-undecided"><img src="img/icons/PNG/24/Shopping/money_box-24.png" /></span>
-                        <span class="contract-info needs-funded needs-i-lost"><img src="img/icons/PNG/24/Hands/thunbs_down-24.png" /></span>
-                        <span class="contract-info needs-unfunded">&nbsp;</span>
+                        <span class="contract-detail needs-funded needs-i-won"><img src="img/icons/PNG/24/Shopping/cash_receiving-24.png" /></span>
+                        <span class="contract-detail needs-funded needs-undecided"><img src="img/icons/PNG/24/Shopping/money_box-24.png" /></span>
+                        <span class="contract-detail needs-funded needs-i-lost"><img src="img/icons/PNG/24/Hands/thunbs_down-24.png" /></span>
+                        <span class="contract-detail needs-unfunded">&nbsp;</span>
                     </td>
                     <td data-type="funds" class="col-md-1"></td>
                     <td data-type="user" class="col-md-1"></td>
@@ -362,9 +362,9 @@ Some people may prefer single instance, but for now let's keep it simple
                     <td data-type="claim-button" class="col-md-1"><a href="#" class="btn btn-primary action-button claim-button">Claim</a></td>
                     <td data-type="tweet-button" class="col-md-1"><a href="#" class="action-button tweet-button"></a><span class="ai-icon ai-twitter"></span></td>
                     <td data-type="status-winner" class="col-md-1">
-                        <span class="contract-info needs-winner-undecided"><span class="ai-icon ai-clock"></span></span>
-                        <span class="contract-info needs-winner-yes"><span class="ai-icon ai-achievement"></span></span>
-                        <span class="contract-info needs-winner-no"><span class="ai-icon ai-dontlike"></span></span>
+                        <span class="contract-detail needs-winner-undecided"><span class="ai-icon ai-clock"></span></span>
+                        <span class="contract-detail needs-winner-yes"><span class="ai-icon ai-achievement"></span></span>
+                        <span class="contract-detail needs-winner-no"><span class="ai-icon ai-dontlike"></span></span>
                     </td>
                   </tr>
 
