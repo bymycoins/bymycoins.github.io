@@ -2,7 +2,7 @@
     var bitcore = require('bitcore');
     var oracle_base = 'https://www.realitykeys.com'
     var oracle_api_base = oracle_base + '/api/v1';
-    var oracle_view_base = oracle_base + '/fact/';
+    var oracle_view_base = oracle_base + '/runkeeper/';
     var oracle_param_string = '?accept_terms_of_service=current';
 
     function assert(val, description) {
@@ -1187,7 +1187,13 @@ console.log(txHex);
             } else {
                 row.addClass('key-not-ready').removeClass('key-ready');
             }
+            if (wins_on == 'Yes') {
+                row.addClass('winner-yes').removeClass('winner-no').removeClass('winner-undecided');
+            } else if (wins_on == 'No') {
+                row.addClass('winner-no').removeClass('winner-yes').removeClass('winner-undecided');
+            }
         } else {
+            row.addClass('winner-undecided');
             row.addClass('undecided').removeClass('decided');
             row.removeClass('i-lost').removeClass('i-won');
         }
@@ -1201,16 +1207,17 @@ console.log(txHex);
         var lnk = $('<a>');
         if (c['is_testnet']) {
             lnk.attr('href', 'https://tbtc.blockr.io/address/info/' + format_address(c['address']));
+            lnk.text(c['balance'] + ' TBTC');
         } else {
             lnk.attr('href', 'https://blockchain.info/address/' + format_address(c['address']));
+            lnk.text(c['balance'] + ' BTC');
         }
-        lnk.text(c['balance']);
 
         row.find( "[data-type='funds']" ).html(lnk);
         row.find( "[data-type='user']" ).text(c['user']);
         row.find( "[data-type='activity']" ).text(c['activity']);
         row.find( "[data-type='measurement']" ).text(c['measurement']);
-        row.find( "[data-type='goal']" ).text(c['goal']);
+        row.find( "[data-type='goal']" ).text(c['goal'] + ' meters');
         row.find( "[data-type='settlement_date']" ).text(c['settlement_date']);
 
         var charity_display = c['charity_display'];
@@ -1297,13 +1304,15 @@ console.log(txHex);
                 return false;
             });
         
+        } else {
+            row.addClass('unfunded');
         }
 
         row.insertAfter('.contract-data-template:last');
         row.show();
 
-        //$('#claim-form').find('tbody').sortable();
-        $('#claim-form').sortable();
+        $('#claim-form').find('tbody').sortable();
+        //$('#claim-form').sortable();
 
     }
 
@@ -1446,25 +1455,6 @@ console.log(txHex);
     function url_parameter_by_name(name) {
         var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
         return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-    }
-
-    function use_case_toggle(use_case) {
-        if (use_case == 'individual') {
-            $('.connect-section').show();
-            $('.goal-section').show();
-            $('.charity-only').hide();
-            $('.individual-only').show();
-            $(this).addClass('active');
-            $('#page-charity-switch').removeClass('active');
-        }
-        if (use_case == 'charity') {
-            $('.connect-section').hide();
-            $('.goal-section').hide();
-            $('.charity-only').show();
-            $('.individual-only').hide();
-            $(this).addClass('active');
-            $('#page-individual-switch').removeClass('active');
-        }
     }
 
     function select_to_icon(icon_class, attribute_name, selected_item) {
@@ -1731,26 +1721,11 @@ console.log(txHex);
             return import_contracts( $('#import-contract-url').val() );
         });
 
-        $('#page-individual-switch').click( function() {
-            $('body').addClass('for-individuals').removeClass('for-charities');
-            use_case_toggle('individual');
-            $(this).addClass('active');
-            $('#page-charity-switch').removeClass('active');
-        });
-        $('#page-charity-switch').click( function() {
-            $('body').addClass('for-charities').removeClass('for-individuals');
-            use_case_toggle('charity');
-            $(this).addClass('active');
-            $('#page-individual-switch').removeClass('active');
-        });
-
-        use_case_toggle('individual');
 
         // If there's a hash with the contract details, go straight to that contract
         if (document.location.hash) {
             if (document.location.hash == '#charity') {
                 $('body').addClass('for-charities').removeClass('for-individuals');
-                use_case_toggle('charity');
                 $('#page-individual-switch').removeClass('active');
                 $('#page-charity-switch').removeClass('active');
             } else {
@@ -1758,6 +1733,24 @@ console.log(txHex);
             }
         }
 
+        $('.filter-icon').click( function() {
+            $(this).removeClass('selected');
+            var nextsib = $(this).next();
+            if (nextsib.length == 0) {
+                // No more options left, wrap around
+                nextsib = $(this).siblings(':first');
+            }
+            nextsib.addClass('selected');
+            var filter_name = $(this).attr('data-filter-name');
+            var old_filter = $(this).attr('data-filter-value');
+            var new_filter = nextsib.attr('data-filter-value');
+            $(this).closest('table').addClass(filter_name+'--'+new_filter).removeClass(filter_name+'--'+old_filter);
+        });
+
+        $('body').addClass('initialized');
+
     }
+
+        $('#test-table').sortable();
 
 
