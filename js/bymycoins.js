@@ -1745,6 +1745,7 @@ console.log(txHex);
             var old_filter = $(this).attr('data-filter-value');
             var new_filter = nextsib.attr('data-filter-value');
             $(this).closest('table').addClass(filter_name+'--'+new_filter).removeClass(filter_name+'--'+old_filter);
+            return false;
         });
 
         $('body').addClass('initialized');

@@ -26,6 +26,8 @@
     .filter-icon { display:none}
     .filter-icon.selected { display:block }
 
+    #claim-form { width:100% }
+
     table.filter-winner--winner-yes tr.contract-data-row:not(.winner-yes) { display:none !important}
     table.filter-winner--winner-no tr.contract-data-row:not(.winner-no) { display:none !important}
     table.filter-winner--winner-undecided tr.contract-data-row:not(.winner-undecided) { display:none !important }
@@ -66,7 +68,8 @@
 
     #activity { display:none }
 
-    #section3:not(.populated) div { visibility:hidden }
+    #section3:not(.populated) div.populated-only { visibility:hidden }
+    #section3.populated div.unpopulated-only { visibility:hidden }
 
     .activity-icon { padding: 10px; margin:2px; }
     .activity-icon.selected { border: 2px solid #428bca; border-radius: 10px  } 
@@ -153,11 +156,6 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="individuals-only list-view needs-mnemonic-created-and-confirmed" ><a href="#section5">Claim your coins</a></li>
-        <li class="charities-only list-view needs-mnemonic-created-and-confirmed"><a href="#section5">Transfer funds</a></li>
-        <!--
-        <li id="page-individual-switch" class="active page-switch"><a href="#individual" >For Individuals</a></li>
-        <li id="page-charity-switch" class="page-switch"><a href="#charity" >For Charities</a></li>
-        -->
       </ul>
 
 
@@ -228,18 +226,19 @@ Some people may prefer single instance, but for now let's keep it simple
   <div class="row">
   	<div class="col-md-12 text-center">
 
-        <input type="text" id="override-with-existing-fact-id" class="for-debugging" />
         <!--
+        <input type="text" id="override-with-existing-fact-id" class="for-debugging" />
         <select class="form-control" id="measurement">
             <option value="total_distance">Distance (Total)</option>
             <option value="cumulative_distance" selected>Distance (Cumulative)</option>
         </select>
         -->
         <h1 class="text-center contract-title-end-xxx"></h1>
+        <input id="is-testnet" value="1" type="checkbox" checked="checked"> Test network (Recommended - Don't use serious money for the time being)
+        <br />
+        <br />
         <a class="btn btn-primary jump-to-secret" href="#section2">Next (set secret)</a>
         <button id="set-goal-submit" type="submit" class="btn btn-primary set-goal-submit">Set this goal</button>
-        <br />
-        <input id="is-testnet" value="1" type="checkbox"> Test network
     </div>
   </div>
   </form>
@@ -265,13 +264,16 @@ Some people may prefer single instance, but for now let's keep it simple
     <br />
     <br />
   	<div class="row public-key-display">
-        <h4 class="text-center">Does someone want to make a contract that would pay you? Give them this public key:</h4>
+        <h4 class="text-center">Does someone want to pay you if they don't reach their goal? Give them this public key:</h4>
         <h4 class="text-center" id="public-key"></span>
   	</div>
 </section>
 
 <section class="container-fluid" id="section3" class="goal-view-section">
-    <div class="row">
+    <div class="unpopulated-only text-center">
+        <h3><a href="#">Please set a goal first, then come back here to fund it and tweet about it.</a></h3>
+    </div>
+    <div class="row populated-only">
       <div class="col-sm-12 text-center">
           <h2 class="contract-title-start"></h2>
           <h3 class="contract-title-end"></h3>
@@ -289,13 +291,13 @@ Some people may prefer single instance, but for now let's keep it simple
       </div>
     </div>
 
-    <div class="row">
+    <div class="row populated-only">
       <div class="col-sm-12 text-center">
           <button id="view-goal-store" type="submit" class="btn btn-primary">Store for later</button>
       </div>
     </div>
 
-      <div id="goal-view-button-section" class="text-center">
+      <div id="goal-view-button-section" class="text-center populated-only">
     <!--
           &nbsp;
 
@@ -305,7 +307,7 @@ Some people may prefer single instance, but for now let's keep it simple
 -->
       </div>
 
-      <div id="goal-view-info-section-bottom" class="text-center">
+      <div id="goal-view-info-section-bottom" class="text-center populated-only">
 <!--
         <img width="16" height="16" src="img/realitykeys_32.png">
           <span id="goal-view-reality-key-link-container" class=""><a href="#" id="goal-view-reality-key-link">Track my progress on Reality Keys.</a></span>
@@ -337,10 +339,10 @@ Some people may prefer single instance, but for now let's keep it simple
                     <th data-type="claim-button" class="col-md-1">Claim</th>
                     <th data-type="tweet-button" class="col-md-1">Tweet</th>
                     <th data-type="status-winner" class="col-md-1">
-                        <span data-filter-name="filter-winner" data-filter-value="" class="filter-icon selected"><span class="ai-icon ai-filter"></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-yes" class="filter-icon"><span class="ai-icon ai-achievement"></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-no" class="filter-icon"><span class="ai-icon ai-dontlike"></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-undecided" class="filter-icon" ><span class="ai-icon ai-clock"></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="" class="filter-icon selected"><a href="#"><span class="ai-icon ai-filter"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-yes" class="filter-icon"><a href="#"><span class="ai-icon ai-achievement"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-no" class="filter-icon"><a href="#"><span class="ai-icon ai-dontlike"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-undecided" class="filter-icon" ><a href="#"><span class="ai-icon ai-clock"></a></span></span>
                     </th>
                   </tr>
                   <tr class="contract-data-template" style="display: none;">
@@ -358,7 +360,7 @@ Some people may prefer single instance, but for now let's keep it simple
                     <td data-type="charity-display" class="col-md-2"></td>
                     <td data-type="fund-button" class="col-md-1"><a href="#" class="btn btn-primary action-button fund-button">Fund</a></td>
                     <td data-type="claim-button" class="col-md-1"><a href="#" class="btn btn-primary action-button claim-button">Claim</a></td>
-                    <td data-type="tweet-button" class="col-md-1"><a href="#" class="action-button tweet-button"></a><span class="ai-icon ai-twitter"></span></td>
+                    <td data-type="tweet-button" class="col-md-1"><a href="#" class="action-button tweet-button"><span class="ai-icon ai-twitter"></span></a></td>
                     <td data-type="status-winner" class="col-md-1">
                         <span class="contract-detail needs-winner-undecided"><span class="ai-icon ai-clock"></span></span>
                         <span class="contract-detail needs-winner-yes"><span class="ai-icon ai-achievement"></span></span>
@@ -373,7 +375,7 @@ Some people may prefer single instance, but for now let's keep it simple
               <form id="import-form" class="form-horizontal">
                 <fieldset>
                   <div class="row form-group load-row" style="text-align:center">
-                    <span data-type="add" class="col-md-8"><input id="import-contract-url" name="import-contract-url" type="text" placeholder="Load from URL" class="form-control" /></span>
+                    <span data-type="add" class="col-md-8"><input id="import-contract-url" name="import-contract-url" type="text" placeholder="You cannot pull direct from Twitter, so you need a URL of a site that collects the tweets." class="form-control" /></span>
                     <span data-type="add" class="col-md-2">&nbsp;</span>
                     <span data-type="load-button" class="col-md-2"><button type="submit" class="btn btn-primary action-button load-button">Fetch from Twitter</button></span>
                   </div>
