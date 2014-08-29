@@ -71,8 +71,10 @@
     tr.contract-data-row.undecided .btn.claim-button { visibility:hidden }
     tr.contract-data-row:not(.undecided) .btn.fund-button { visibility:hidden }
 
+    #section3:not(.populating) div.populating-only { visibility:hidden }
     #section3:not(.populated) div.populated-only { visibility:hidden }
     #section3.populated div.unpopulated-only { visibility:hidden }
+    #section3.populating div.unpopulated-only { visibility:hidden }
 
     .activity-icon { padding: 10px; margin:2px; }
     .activity-icon.selected { border: 2px solid #428bca; border-radius: 10px  } 
@@ -281,6 +283,9 @@ Some people may prefer single instance, but for now let's keep it simple
 <section class="container-fluid" id="section3" class="goal-view-section">
     <div class="unpopulated-only text-center">
         <h3><a href="#">Please set a goal first, then come back here to fund it and tweet about it.</a></h3>
+    </div>
+    <div class="populating-only text-center">
+        <h3><a href="#">Loading...</a></h3>
     </div>
     <div class="row populated-only">
       <div class="col-sm-12 text-center">

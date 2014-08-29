@@ -756,6 +756,7 @@ console.log(c251t_tx_hex_wrong);
     function display_single_contract(c) {
 
         //$('body').removeClass('for-list').addClass('for-single');
+        $('#section3').removeClass('populated').addClass('populating');
 
         $('#goal-view-reality-key-link').attr('href', '#');
         $('#goal-view-reality-key-link-container').hide();
@@ -879,7 +880,7 @@ console.log(c251t_tx_hex_wrong);
                     $('.goal-view-section').removeClass('i-lost').removeClass('i-won');
                 }
 
-                $('#section3').addClass('populated');
+                $('#section3').addClass('populated').removeClass('populating');
 
                 //$('#single-claim-button').unbind('click').text('Checking balance...');
                 // Now we have the address, we can get the balance
