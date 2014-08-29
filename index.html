@@ -20,7 +20,12 @@
 		<link href="css/styles.css" rel="stylesheet">
 <style>
 
-    body:not('.initialized') .initialized-only { visibility:hidden }
+    /*
+    Some elements may or may not be displayed depending on what we find in the URL or local storage.
+    initialize_page() should set it correctly, but hide it initially.
+    Because it makes for a weird flash if we show something on load then immediately hide it again.
+    */
+    body:not(.initialized) .initialized-only { visibility:hidden }
 
     .ai-icon { font-size:24px }
     .filter-icon { display:none}
@@ -66,8 +71,6 @@
     tr.contract-data-row.undecided .btn.claim-button { visibility:hidden }
     tr.contract-data-row:not(.undecided) .btn.fund-button { visibility:hidden }
 
-    #activity { display:none }
-
     #section3:not(.populated) div.populated-only { visibility:hidden }
     #section3.populated div.unpopulated-only { visibility:hidden }
 
@@ -91,6 +94,12 @@
     body.mnemonic-created-and-confirmed #confirm-mnemonic-button { display: none }
 
     body.athlete-connected #authenticate-runkeeper-user {display:none}
+
+    /*
+    We'll pull this button out of the main flow to make it appear first on mobile
+    ...but set a margin to match the padding on larger devices when it appears in the right-hand column
+    */
+    #authenticate-runkeeper-user { margin-left: 15px }
 
     /*
     In theory you might want to set a different user and track someone else.
@@ -132,11 +141,11 @@
     */
     .goal-view-section { visibility: hidden }
     #mnemonic {text-align: center}
+
     </style>
 
-
 	</head>
-  <body class="for-individuals for-list">
+  <body >
 <nav class="navbar navbar-trans navbar-fixed-top" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
@@ -176,18 +185,18 @@ Some people may prefer single instance, but for now let's keep it simple
 -->
 <input type="hidden" id="measurement" name="measurement" value="cumulative_distance" />
   <div class="form-group">
+        <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user initialized-only">Connect to RunKeeper</a>
         <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my coins</label>
         <div class="col-md-2">
             <input class="form-control" type="text" id="user" placeholder="User on RunKeeper" value="" />
-            <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user initialized-only">Connect to RunKeeper</a>
         </div>
       </div>
   <div class="form-group">
   	<label class="control-label col-md-6">to <span class="activity-verb">walk</span></label>
   	<div class="col-md-6">
-      <img class="activity-icon" data-activity="running" src="img/icons/PNG/32/Sports/running-32.png">
-          <img class="activity-icon" data-activity="walking" src="img/icons/PNG/32/Sports/walking-32.png">
-          <select id="activity">
+          <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="running" src="img/icons/PNG/32/Sports/running-32.png">
+          <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="walking" src="img/icons/PNG/32/Sports/walking-32.png">
+          <select id="activity" class="form-control hidden-md hidden-lg">
             <option value=""></option>
             <option data-verb="run" data-unit="m" value="running">run</option>
             <option data-verb="walk" data-unit="m" value="walking" selected>walk</option>
@@ -210,16 +219,16 @@ Some people may prefer single instance, but for now let's keep it simple
   	<label class="control-label col-md-6">
         or they go to<br /><span class="charity-display-text"></span>
     </label>
-  	<div class="col-md-6">
-        <img class="charity-icon" data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
-        <img class="charity-icon" data-charity="other" width="64" height="64" src="img/charities/other_128.png" />
+  	<div class="col-md-4">
+        <img class="charity-icon visible-md-inline visible-lg-inline" data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
+        <img class="charity-icon visible-md-inline visible-lg-inline" data-charity="other" width="64" height="64" src="img/charities/other_128.png" />
 
-        <select id="charity-select" style="display:none">
+        <select id="charity-select" class="form-control hidden-md hidden-lg">
             <option value="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3">Chika Edgar Kickboxing Fund</option>
             <option value="other">Other (enter public key below)</option>
         </select> 
         <br />
-        <input class="form-control" type="text" id="charity-public-key" placeholder="Charity Public Key">
+        <input class="form-control initialized-only" type="text" id="charity-public-key" placeholder="Charity Public Key">
     </div>
   </div>
  </form>
