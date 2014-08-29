@@ -1,0 +1,192 @@
+{
+  "name": "",
+  "css_prefix_text": "icon-",
+  "css_use_suffix": false,
+  "hinting": true,
+  "units_per_em": 1000,
+  "ascent": 850,
+  "glyphs": [
+    {
+      "uid": "df2b39bc40017461b93eaa351e02a60a",
+      "css": "piggy-bank",
+      "code": 59413,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M500 201.2C500 129.4 441.7 71.2 370 71.2 298.1 71.2 240 129.4 240 201.2 240 221.4 244.6 240.3 252.8 257.2M907.5 480.6H875C858 480.6 850 473 848.7 465.3 839.9 409.6 803.6 337.1 712.5 305.3 711.7 254.8 722.9 218.4 744.8 159.2 693.9 172 637.6 199.7 604.3 273.2 566.8 264 526.6 259.1 484.7 259.1 375 259.1 292.3 292.3 226.1 343.9 166.2 390.5 128.7 468.5 133.1 574.9 136.5 655.1 192.4 716.4 235.3 750.7 241.4 755.6 253.8 763.4 247.3 783.3 240.9 803.2 229.3 831 229.3 831 222.5 848.7 231.5 868.6 249.2 875.4L313.5 899.7C331.3 906.4 351.2 897.5 357.9 879.8 357.9 879.8 366.5 857.5 373.4 838.9 386.6 803.9 394.7 832.3 484.7 832.3 578.3 832.3 587.7 814 597.5 842.7 603.8 861.4 611.6 879.8 611.6 879.8 618.2 897.5 638.2 906.4 655.9 899.7L720.2 875.4C738 868.6 747 848.7 740.2 831L729.9 803.7C729.9 803.7 719.4 785.7 741.9 773.5 786.7 749.1 820.5 712.1 842.4 666.3 847.1 656.5 854 643.2 875 643.2H907.5C925.4 643.2 940 628.6 940 610.7V513.2C940 495.2 925.4 480.6 907.5 480.6ZM729.6 538.4C708.4 538.4 691.3 521.3 691.3 500.2 691.3 479.1 708.4 461.9 729.6 461.9 750.7 461.9 767.8 479.1 767.8 500.2 767.8 521.3 750.7 538.4 729.6 538.4ZM136.5 461.9C136.5 461.9 60 444.4 60 375.4 60 347.1 74.3 321 99.3 310.3",
+        "width": 1000
+      },
+      "search": [
+        "1409313919_money_box"
+      ]
+    },
+    {
+      "uid": "17ebadd1e3f274ff0205601eef7b9cc4",
+      "css": "help-circled",
+      "code": 59397,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "e82cedfa1d5f15b00c5a81c9bd731ea2",
+      "css": "info-circled",
+      "code": 59396,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "acf41aa4018e58d49525665469e35665",
+      "css": "thumbs-up",
+      "code": 59418,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "7533e68038fc6d520ede7a7ffa0a2f64",
+      "css": "thumbs-down",
+      "code": 59417,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "f5999a012fc3752386635ec02a858447",
+      "css": "download-cloud",
+      "code": 59398,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "c76b7947c957c9b78b11741173c8349b",
+      "css": "attention",
+      "code": 59401,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "b035c28eba2b35c6ffe92aee8b0df507",
+      "css": "attention-circled",
+      "code": 59400,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "c08a1cde48d96cba21d8c05fa7d7feb1",
+      "css": "doc-text-inv",
+      "code": 59399,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "531bc468eecbb8867d822f1c11f1e039",
+      "css": "calendar",
+      "code": 59402,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "5278ef7773e948d56c4d442c8c8c98cf",
+      "css": "lightbulb",
+      "code": 59404,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "7bf14281af5633a597f85b061ef1cfb9",
+      "css": "angle-right",
+      "code": 59406,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "94089b37297572e936b0943bcfa041d3",
+      "css": "angle-circled-right",
+      "code": 59405,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "ab656e280958018a7859eba9a1eabbc7",
+      "css": "award",
+      "code": 59424,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "197375a3cea8cb90b02d06e4ddf1433d",
+      "css": "globe",
+      "code": 59410,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "3212f42c65d41ed91cb435d0490e29ed",
+      "css": "flash",
+      "code": 59411,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "026007bd17bfc67f3fe013199676f620",
+      "css": "dollar",
+      "code": 59407,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "2cb15eb2b295ee3c33fab1530e18a924",
+      "css": "bitcoin",
+      "code": 59408,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "bbd66ef66bb8fa9edde54d9a90b89150",
+      "css": "user-1",
+      "code": 59415,
+      "src": "entypo"
+    },
+    {
+      "uid": "7f6916533c0842b6cec699fd773693d3",
+      "css": "hourglass",
+      "code": 59419,
+      "src": "entypo"
+    },
+    {
+      "uid": "8beac4a5fd5bed9f82ca7a96cc8ba218",
+      "css": "key",
+      "code": 59392,
+      "src": "entypo"
+    },
+    {
+      "uid": "d090355c31f497b61d676416c1fd39fb",
+      "css": "twitter",
+      "code": 59421,
+      "src": "entypo"
+    },
+    {
+      "uid": "7997220c4eb58edae98e04de570089c2",
+      "css": "lock",
+      "code": 59393,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "b10e25220faa78c808527a4ba8b5c0f9",
+      "css": "lock-alt",
+      "code": 59394,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "e67bcab050d99eb04d44027139ae05f5",
+      "css": "lock-open",
+      "code": 59395,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "8167f6441d2557a90d717a7fc3248760",
+      "css": "lock-open-alt",
+      "code": 59403,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "523e56b66e166a5bb7b823844bdf56e6",
+      "css": "bitcoin-1",
+      "code": 59423,
+      "src": "zocial"
+    },
+    {
+      "uid": "2e3c51fc718aeb8b01604c8d039bcaeb",
+      "css": "block",
+      "code": 59420,
+      "src": "elusive"
+    },
+    {
+      "uid": "5048fb5dd929882d2bac1ad3777b0b7d",
+      "css": "filter",
+      "code": 59412,
+      "src": "elusive"
+    }
+  ]
+}

@@ -9,10 +9,8 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet">
 		<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-        <link rel="stylesheet" href="adi_icons/css/androidicons.css" type="text/css" media="all" />
-
+        <link rel="stylesheet" href="fontello/css/fontello.css" type="text/css" media="all" />
         <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
-
 
 		<!--[if lt IE 9]>
 			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -27,7 +25,7 @@
     */
     body:not(.initialized) .initialized-only { visibility:hidden }
 
-    .ai-icon { font-size:24px }
+    .fontello-icon { font-size:24px }
     .filter-icon { display:none}
     .filter-icon.selected { display:block }
 
@@ -337,11 +335,11 @@ Some people may prefer single instance, but for now let's keep it simple
             <table id="claim-form" class="">
                   <tbody><tr class="">
                     <th data-type="status-funds" class="col-md-1">
-                        <span data-filter-name="filter-funds" data-filter-value="" class="filter-icon selected"><span class="ai-icon ai-filter"></span></span>
-                        <span data-filter-name="filter-funds" data-filter-value="funded-i-won" class="filter-icon" ><img src="img/icons/PNG/24/Shopping/cash_receiving-24.png" /></span>
-                        <span data-filter-name="filter-funds" data-filter-value="funded-undecided" class="filter-icon"><img src="img/icons/PNG/24/Shopping/money_box-24.png" /></span>
-                        <span data-filter-name="filter-funds" data-filter-value="funded-i-lost" class="filter-icon" ><img src="img/icons/PNG/24/Hands/thunbs_down-24.png" /></span>
-                        <span data-filter-name="filter-funds" data-filter-value="unfunded" class="filter-icon">X</span>
+                        <span data-filter-name="filter-funds" data-filter-value="" class="filter-icon selected"><a href="#"><span class="fontello-icon icon-filter"></span></a></span>
+                        <span data-filter-name="filter-funds" data-filter-value="funded-i-won" class="filter-icon" ><a href="#"><span class="fontello-icon icon-bitcoin"></span></a></span>
+                        <span data-filter-name="filter-funds" data-filter-value="funded-undecided" class="filter-icon"><a href="#"><span class="fontello-icon icon-piggy-bank"></span></a></span>
+                        <span data-filter-name="filter-funds" data-filter-value="funded-i-lost" class="filter-icon" ><a href="#"><span class="fontello-icon icon-thumbs-down"></span></a></span>
+                        <span data-filter-name="filter-funds" data-filter-value="unfunded" class="filter-icon"><a href="#"><span class="fontello-icon icon-block"</span></a></span>
                     </th>
                     <th data-type="funds" class="col-md-1">Available</th>
                     <th data-type="user" class="col-md-1">Athlete</th>
@@ -353,17 +351,17 @@ Some people may prefer single instance, but for now let's keep it simple
                     <th data-type="claim-button" class="col-md-1">Claim</th>
                     <th data-type="tweet-button" class="col-md-1">Tweet</th>
                     <th data-type="status-winner" class="col-md-1">
-                        <span data-filter-name="filter-winner" data-filter-value="" class="filter-icon selected"><a href="#"><span class="ai-icon ai-filter"></a></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-yes" class="filter-icon"><a href="#"><span class="ai-icon ai-achievement"></a></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-no" class="filter-icon"><a href="#"><span class="ai-icon ai-dontlike"></a></span></span>
-                        <span data-filter-name="filter-winner" data-filter-value="winner-undecided" class="filter-icon" ><a href="#"><span class="ai-icon ai-clock"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="" class="filter-icon selected"><a href="#"><span class="fontello-icon icon-filter"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-yes" class="filter-icon"><a href="#"><span class="fontello-icon icon-award"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-no" class="filter-icon"><a href="#"><span class="fontello-icon icon-thumbs-down"></a></span></span>
+                        <span data-filter-name="filter-winner" data-filter-value="winner-undecided" class="filter-icon" ><a href="#"><span class="fontello-icon icon-hourglass"></a></span></span>
                     </th>
                   </tr>
                   <tr class="contract-data-template" style="display: none;">
                     <td data-type="status-funds" class="col-md-1">
-                        <span class="contract-detail needs-funded needs-i-won"><img src="img/icons/PNG/24/Shopping/cash_receiving-24.png" /></span>
-                        <span class="contract-detail needs-funded needs-undecided"><img src="img/icons/PNG/24/Shopping/money_box-24.png" /></span>
-                        <span class="contract-detail needs-funded needs-i-lost"><img src="img/icons/PNG/24/Hands/thunbs_down-24.png" /></span>
+                        <span class="contract-detail needs-funded needs-i-won"><span class="fontello-icon icon-bitcoin"></span></span>
+                        <span class="contract-detail needs-funded needs-undecided"><span class="fontello-icon icon-piggy-bank"></span></span>
+                        <span class="contract-detail needs-funded needs-i-lost"><span class="fontello-icon icon-thumbs-down"></span></span>
                         <span class="contract-detail needs-unfunded">&nbsp;</span>
                     </td>
                     <td data-type="funds" class="col-md-1"></td>
@@ -374,11 +372,11 @@ Some people may prefer single instance, but for now let's keep it simple
                     <td data-type="charity-display" class="col-md-2"></td>
                     <td data-type="fund-button" class="col-md-1"><a href="#" class="btn btn-primary action-button fund-button">Fund</a></td>
                     <td data-type="claim-button" class="col-md-1"><a href="#" class="btn btn-primary action-button claim-button">Claim</a></td>
-                    <td data-type="tweet-button" class="col-md-1"><a href="#" class="action-button tweet-button"><span class="ai-icon ai-twitter"></span></a></td>
+                    <td data-type="tweet-button" class="col-md-1"><a href="#" class="action-button tweet-button"><span class="fontello-icon icon-twitter"></span></a></td>
                     <td data-type="status-winner" class="col-md-1">
-                        <span class="contract-detail needs-winner-undecided"><span class="ai-icon ai-clock"></span></span>
-                        <span class="contract-detail needs-winner-yes"><span class="ai-icon ai-achievement"></span></span>
-                        <span class="contract-detail needs-winner-no"><span class="ai-icon ai-dontlike"></span></span>
+                        <span class="contract-detail needs-winner-undecided"><span class="fontello-icon icon-hourglass"></span></span>
+                        <span class="contract-detail needs-winner-yes"><span class="fontello-icon icon-award"></span></span>
+                        <span class="contract-detail needs-winner-no"><span class="fontello-icon icon-thumbs-down"></span></span>
                     </td>
                   </tr>
 
