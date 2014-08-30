@@ -4,11 +4,16 @@
     var oracle_api_base = oracle_base + '/api/v1';
     var oracle_view_base = oracle_base + '/runkeeper/';
     var oracle_param_string = '?accept_terms_of_service=current';
+    var runkeeper_profile_base = 'http://www.runkeeper.com/user';
 
     function assert(val, description) {
         if (!val) {
             console.log("ASSERT FAIL: "+description);
         }
+    }
+
+    function runkeeper_url(profile) {
+        return runkeeper_profile_base + '/' + profile;
     }
 
     // Return sanitized pubkey, or null if it doesn't look like a proper pubkey
@@ -151,10 +156,10 @@
         // The resulting object should be the same as what you would get if you fetched the json from the api
 
         // https://www.realitykeys.com/api/v1/runkeeper/251/?accept_terms_of_service=current
-        var yes_fact = {"no_pubkey": "03ead85d26a8339abffabe420a5cc23d9a12a0d005a7d248c80c0d43cf969236e3", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user": "edochan", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "123", "created_datetime": "2014-07-23 03:30:47", "winner": "Yes", "value": "123", "id": 251, "source": "runkeeper", "yes_pubkey": "03ef92fd0593af4e10de665d1b25703a76af84349becdf6830b290a010db837460", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L4URPwQTLbuZjhZZB3VCway3AGtMHGtxiY1JpjwSj7EKgwvF8oYa"};
+        var yes_fact = {"no_pubkey": "03ead85d26a8339abffabe420a5cc23d9a12a0d005a7d248c80c0d43cf969236e3", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user_name": "edochan", "user_profile": "edochan", "user_id": "29908850", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "123", "created_datetime": "2014-07-23 03:30:47", "winner": "Yes", "value": "123", "id": 251, "source": "runkeeper", "yes_pubkey": "03ef92fd0593af4e10de665d1b25703a76af84349becdf6830b290a010db837460", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L4URPwQTLbuZjhZZB3VCway3AGtMHGtxiY1JpjwSj7EKgwvF8oYa"};
 
         // https://www.realitykeys.com/api/v1/runkeeper/252/?accept_terms_of_service=current
-        var no_fact = {"no_pubkey": "02c5671e3ec059bd200665d227e99e3f3f0f28ecdf848c4bfb5de408e5def8300a", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user": "edochan", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "12300", "created_datetime": "2014-07-23 09:11:05", "winner": "No", "value": "12300", "id": 252, "source": "runkeeper", "yes_pubkey": "02f70abb10f616d102b67ea0cc5f4887df642771c4dce5ba838ac88e465210dd64", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L3iW65EC59fvWjsRz2TNPjBtueyBt2mkGE59LdG5nAf463YTRD45"}
+        var no_fact = {"no_pubkey": "02c5671e3ec059bd200665d227e99e3f3f0f28ecdf848c4bfb5de408e5def8300a", "settlement_date": "2014-07-23", "objection_period_secs": 86400, "human_resolution_scheduled_datetime": null, "user_name": "edochan", "user_profile": "edochan", "user_id": "29908850", "measurement": "cumulative_distance", "evaluation_method": "ge", "is_user_authenticated": true, "objection_fee_satoshis_paid": 0, "machine_resolution_scheduled_datetime": "2014-07-23 00:00:00", "goal": "12300", "created_datetime": "2014-07-23 09:11:05", "winner": "No", "value": "12300", "id": 252, "source": "runkeeper", "yes_pubkey": "02f70abb10f616d102b67ea0cc5f4887df642771c4dce5ba838ac88e465210dd64", "activity": "walking", "objection_fee_satoshis_due": 1000000, "winner_privkey": "L3iW65EC59fvWjsRz2TNPjBtueyBt2mkGE59LdG5nAf463YTRD45"}
 
 
 
@@ -1215,7 +1220,7 @@ console.log(txHex);
         }
 
         row.find( "[data-type='funds']" ).html(lnk);
-        row.find( "[data-type='user']" ).text(c['user']);
+        row.find( "[data-type='user']" ).find('.runkeeper-profile-link').attr('href', runkeeper_url(c['user_profile'])).text(c['user_name']);
         row.find( "[data-type='activity']" ).text(c['activity']);
         row.find( "[data-type='measurement']" ).text(c['measurement']);
         row.find( "[data-type='goal']" ).text(c['goal'] + ' meters');
@@ -1414,8 +1419,8 @@ console.log(txHex);
 
     function update_submittable() {
         var ok = true;
-        var profile = $('#user').val();
-        if ( (profile == '') || ( $('#user').attr('data-validated-user') != profile) ) {
+        var user_id = $('#user').val();
+        if ( (user_id == '') || ( $('#user').attr('data-validated-user-id') != user_id) ) {
             ok = false;
         }
         if (ok) {
@@ -1429,18 +1434,21 @@ console.log(txHex);
     }
 
     // Check the user is authenticated so Reality Keys can get at their data.
-    // Once they are, set their username in the data-validated-user attribute.
+    // Once they are, set their username in the data-validated-user-id attribute.
     function validate_user( inpjq ) {
-        var profile = inpjq.val();
-        if ( (profile != '') && (inpjq.attr('data-validated-user') != profile ) ) {
-            var url = oracle_api_base + '/runkeeper/is-user-authenticated/' + profile;
+        var user_id = inpjq.val();
+        if ( (user_id != '') && (inpjq.attr('data-validated-user-id') != user_id ) ) {
+            var url = oracle_api_base + '/runkeeper/user-info-by-id/' + user_id;
             $.ajax({
                 url: url, 
                 type: 'GET',
                 dataType: 'json', 
                 success: function(data) {
-                    if (data[profile]) {
-                        inpjq.attr('data-validated-user', profile);
+                    if ( data['status'] == 'success' ) {
+                        inpjq.attr('data-validated-user-id', data['data']['user_id']);
+                        inpjq.attr('data-validated-user-profile', data['data']['profile']);
+                        inpjq.attr('data-validated-user-name', data['data']['name']);
+                        update_goal_text($('#set-goal-form'));
                     }
                     update_submittable();
                 },
@@ -1471,7 +1479,11 @@ console.log(txHex);
         var charity_display = charity_display_for_form();
         frm.find('.charity-display-text').text( charity_display );
 
-        var user = $('#user').val();
+        var userjq = $('#user');
+        var user = '';
+        if ( userjq.attr('data-validated-user-id') == userjq.val() ) {
+            user = userjq.attr('data-validated-user-name');
+        }
         var user_text = ( user == '' ) ? '' : ', '+user+',';
         frm.find('.user-text').text( user_text );
         var contract_text = {
@@ -1479,7 +1491,7 @@ console.log(txHex);
             'goal_text': $('#goal').val() + ' meters',
             'settlement_date': $('#settlement_date').val(),
             'charity_display': charity_display,
-            'user': $('#user').val()
+            'user': user
         }
         $('.contract-title-start').text(formatted_title_start(contract_text, false));
         $('.contract-title-end').text(formatted_title_end(contract_text, false));
@@ -1604,7 +1616,7 @@ console.log(txHex);
             handle_set_goal_form_change();   
         });
 
-        var athlete = url_parameter_by_name('completed_profile');
+        var athlete = url_parameter_by_name('completed_user_id');
         if (athlete) {
             store_athlete(athlete);
             $('#user').val(athlete);

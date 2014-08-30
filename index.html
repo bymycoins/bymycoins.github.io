@@ -185,7 +185,6 @@ Some people may prefer single instance, but for now let's keep it simple
 -->
 <input type="hidden" id="measurement" name="measurement" value="cumulative_distance" />
   <div class="form-group">
-        <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user initialized-only">Connect to RunKeeper</a>
         <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my coins</label>
         <div class="col-md-2">
             <input class="form-control" type="text" id="user" placeholder="User on RunKeeper" value="" />
@@ -246,6 +245,7 @@ Some people may prefer single instance, but for now let's keep it simple
         <input id="is-testnet" value="1" type="checkbox" checked="checked"> Test network (Recommended - Don't use serious money for the time being)
         <br />
         <br />
+        <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user initialized-only">Connect to RunKeeper</a>
         <a class="btn btn-primary jump-to-secret" href="#section2">Next (set secret)</a>
         <button id="set-goal-submit" type="submit" class="btn btn-primary set-goal-submit">Set this goal</button>
     </div>
@@ -365,7 +365,7 @@ Some people may prefer single instance, but for now let's keep it simple
                         <span class="contract-detail needs-unfunded">&nbsp;</span>
                     </td>
                     <td data-type="funds" class="col-md-1"></td>
-                    <td data-type="user" class="col-md-1"></td>
+                    <td data-type="user" class="col-md-1"><a class="runkeeper-profile-link" href="#"></a></td>
                     <td data-type="activity" class="col-md-1"></td>
                     <td data-type="goal" class="col-md-1"></td>
                     <td data-type="settlement_date" class="col-md-1"></td>
