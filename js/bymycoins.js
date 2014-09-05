@@ -1532,7 +1532,7 @@ console.log(txHex);
 
         var url = oracle_api_base + '/runkeeper/new';
         params = {
-            'user': $('#user').val(),
+            'user_id': $('#user').val(),
             'activity': $('#activity').val(),
             'measurement': $('#measurement').val(),
             'goal': $('#goal').val(),
