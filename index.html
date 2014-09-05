@@ -31,6 +31,8 @@
 
     #claim-form { width:100% }
 
+    .button-row{ padding-top:40px; }
+
     table.filter-winner--winner-yes tr.contract-data-row:not(.winner-yes) { display:none !important}
     table.filter-winner--winner-no tr.contract-data-row:not(.winner-no) { display:none !important}
     table.filter-winner--winner-undecided tr.contract-data-row:not(.winner-undecided) { display:none !important }
@@ -71,8 +73,8 @@
 
     #section3:not(.populating) div.populating-only { visibility:hidden }
     #section3:not(.populated) div.populated-only { visibility:hidden }
-    #section3.populated div.unpopulated-only { visibility:hidden }
-    #section3.populating div.unpopulated-only { visibility:hidden }
+    #section3.populated div.unpopulated-only { display:none }
+    #section3.populating div.unpopulated-only { display:none }
 
     .activity-icon { padding: 10px; margin:2px; }
     .activity-icon.selected { border: 2px solid #428bca; border-radius: 10px  } 
@@ -87,8 +89,6 @@
 
     .view-goal-form-loading { display:none }
     section.goal-stored .view-goal-store { display: none }
-
-    .form-horizontal .control-label { font-color:red; size:200% }
 
     body:not(.mnemonic-created-and-confirmed) li.needs-mnemonic-created-and-confirmed a { color:gray }
     body.mnemonic-created-and-confirmed #confirm-mnemonic-button { display: none }
@@ -122,7 +122,6 @@
     .goal-view-balance-container { display:none }
     .goal-view-reality-key-link-container { display:none; bottom:5px }
 
-    #set-goal-form .control-label { font-size:150% }
     #set-goal-form .form-group { height:50px; vertical-align:middle !important }
 
 
@@ -132,7 +131,7 @@
     .goal-section .jump-to-connect{ display:none }
 
     body.initialized.mnemonic-created-and-confirmed.athlete-connected .set-goal-submit {display:inline}
-    body.initialized:not(.mnemonic-created-and-confirmed) #section:not(.needs-connect) .jump-to-secret{ display:inline}
+    body.initialized.athlete-connected:not(.mnemonic-created-and-confirmed) .jump-to-secret{ display:inline}
 
     /*
     There will be a single item at the bottom of the page for showing an individual contract
@@ -184,73 +183,82 @@
 Some people may prefer single instance, but for now let's keep it simple
 -->
 <input type="hidden" id="measurement" name="measurement" value="cumulative_distance" />
-  <div class="form-group">
-        <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my coins</label>
-        <div class="col-md-2">
-            <input class="form-control" type="text" id="user" placeholder="User on RunKeeper" value="" />
-        </div>
-      </div>
-  <div class="form-group">
-  	<label class="control-label col-md-6">to <span class="activity-verb">walk</span></label>
-  	<div class="col-md-6">
-          <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="running" src="img/icons/PNG/32/Sports/running-32.png">
-          <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="walking" src="img/icons/PNG/32/Sports/walking-32.png">
-          <select id="activity" class="form-control hidden-md hidden-lg">
-            <option value=""></option>
-            <option data-verb="run" data-unit="m" value="running">run</option>
-            <option data-verb="walk" data-unit="m" value="walking" selected>walk</option>
-          </select>
+<div class="form-group">
+    <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my <span class="coin-type-text">coins</span></label>
+    <div class="col-md-3">
+    <select name="is-testnet" id="is-testnet" class="form-control ">
+        <option selected="selected" value="0">Testnet Coins (Recommended)</option>
+        <option value="1">Bitcoins (Use at your own risk!)</option>
+    </select>
     </div>
-  </div>
-  <div class="form-group">
-  	<label class="control-label col-md-6"><span class="goal-text"></span></label>
-  	<div class="col-md-1">
+    <input class="form-control" type="text" id="user" placeholder="User on RunKeeper" value="" />
+</div>
+
+<div class="form-group">
+    <label class="control-label col-md-6">to <span class="activity-verb">walk</span></label>
+    <div class="col-md-6">
+      <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="running" src="img/icons/PNG/32/Sports/running-32.png">
+      <img class="activity-icon visible-md-inline visible-lg-inline" data-activity="walking" src="img/icons/PNG/32/Sports/walking-32.png">
+      <select id="activity" class="form-control hidden-md hidden-lg">
+        <option value=""></option>
+        <option data-verb="run" data-unit="m" value="running">run</option>
+        <option data-verb="walk" data-unit="m" value="walking" selected>walk</option>
+      </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-md-6"><span class="goal-text"></span></label>
+    <div class="col-md-1">
         <input style="height:36px" size="8" class="form-control" type="text" id="goal" placeholder="Goal" value="1000"> 
     </div>
-  </div>
-  <div class="form-group">
+</div>
+
+<div class="form-group">
     <label class="control-label col-md-6">by <span class="settlement-date-text"></span></label>
-  	<div class="col-md-2">
+    <div class="col-md-2">
         <input size="8" type="text" id="settlement_date" placeholder="Date" value="" class="form-control">
     </div>
-  </div>
-  <div class="form-group">
-  	<label class="control-label col-md-6">
-        or they go to<br /><span class="charity-display-text"></span>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-md-6">
+        or they go to <span class="charity-display-text"></span>
     </label>
-  	<div class="col-md-4">
-        <img class="charity-icon visible-md-inline visible-lg-inline" data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
-        <img class="charity-icon visible-md-inline visible-lg-inline" data-charity="other" width="64" height="64" src="img/charities/other_128.png" />
-
-        <select id="charity-select" class="form-control hidden-md hidden-lg">
-            <option value="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3">Chika Edgar Kickboxing Fund</option>
-            <option value="other">Other (enter public key below)</option>
-        </select> 
-        <br />
-        <input class="form-control initialized-only" type="text" id="charity-public-key" placeholder="Charity Public Key">
+    <div class="col-md-6">
+        <div class="visible-lg-block visible-md-block">
+            <img class="charity-icon " data-charity="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3" width="64" height="64" src="img/charities/chika_kickboxing_128.png" />
+            <img class="charity-icon " data-charity="other" width="64" height="64" src="img/charities/other_128.png" />
+        </div>
+        <div class="visible-sm-block visible-xs-block">
+            <select id="charity-select" class="form-control ">
+                <option value="03b1e8aba06d96273de138cb8f672ef93b3bdefd9dc18d6c038e4eb8a766778ad3">Chika Edgar Kickboxing Fund</option>
+                <option value="other">Other (enter public key below)</option>
+            </select> 
+        </div>
+        <div>
+            <input class="form-control initialized-only" type="text" id="charity-public-key" placeholder="Charity Public Key">
+        </div>
     </div>
-  </div>
- </form>
-  <div class="row">
-  	<div class="col-md-12 text-center">
+</div>
 
-        <!--
-        <input type="text" id="override-with-existing-fact-id" class="for-debugging" />
-        <select class="form-control" id="measurement">
-            <option value="total_distance">Distance (Total)</option>
-            <option value="cumulative_distance" selected>Distance (Cumulative)</option>
-        </select>
-        -->
-        <h1 class="text-center contract-title-end-xxx"></h1>
-        <input id="is-testnet" value="1" type="checkbox" checked="checked"> Test network (Recommended - Don't use serious money for the time being)
-        <br />
-        <br />
+    <!--
+    <input type="text" id="override-with-existing-fact-id" class="for-debugging" />
+    <select class="form-control" id="measurement">
+        <option value="total_distance">Distance (Total)</option>
+        <option value="cumulative_distance" selected>Distance (Cumulative)</option>
+    </select>
+    -->
+
+<div class="form-group button-row">
+    <div class="col-md-12 text-center">
         <a id="authenticate-runkeeper-user" type="button" class="btn btn-primary btn-authenticate-runkeeper-user initialized-only">Connect to RunKeeper</a>
         <a class="btn btn-primary jump-to-secret" href="#section2">Next (set secret)</a>
         <button id="set-goal-submit" type="submit" class="btn btn-primary set-goal-submit">Set this goal</button>
     </div>
-  </div>
-  </form>
+</div>
+
+</form>
 </section>
 
 <section class="container-fluid secret-section" id="section2">
@@ -261,13 +269,15 @@ Some people may prefer single instance, but for now let's keep it simple
     <h4 class="text-center">Make sure you keep a copy of this safe to be sure you can get your bitcoins back.</h4>
     <br />
   	<div class="row ">
-        <div class=" col-md-8 col-md-offset-2">
+        <div class=" col-md-8 col-sm-12 col-xs-12 col-md-offset-2">
             <input class="form-control" id="mnemonic" type="text" placeholder="Your secret words" />
         </div>
     </div>
     <br />
   	<div class="row ">
-        <input class="btn btn-primary col-md-6 col-md-offset-3" id="confirm-mnemonic-button" value="I have made a copy of these words, and I will keep them secret." />
+        <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 col-md-offset-2 col-lg-offset-2">
+        <input class="btn btn-primary col-sm-12 col-xs-12 col-md-12 col-lg-12" id="confirm-mnemonic-button" value="I have made a copy of these words, and I will keep them secret." />
+        </div>
     </div>
 
     <br />
@@ -299,7 +309,6 @@ Some people may prefer single instance, but for now let's keep it simple
           <h4>Tweet the address of this page to <a href="https://www.twitter.com/bymycoins">@bymycoins</a>.</h4>
           <br />
           <span class=""><a id="twitter-button" target="twitter-window" href="#"><img src="img/icons/PNG/128/Social_Networks/twitter-128.png"></a></span>
-          <br />
       </div>
     </div>
 
@@ -308,25 +317,6 @@ Some people may prefer single instance, but for now let's keep it simple
           <button id="view-goal-store" type="submit" class="btn btn-primary">Store for later</button>
       </div>
     </div>
-
-      <div id="goal-view-button-section" class="text-center populated-only">
-    <!--
-          &nbsp;
-
-          <button type="submit" class="btn btn-primary action-button claim-button" disabled="disabled" id="single-claim-button">Claim</button></span>
-      &nbsp;
-          <a href="#" target="twitter_window" id="tweet-button" type="submit" class="btn btn-primary action-button tweet-button">Tweet</a>
--->
-      </div>
-
-      <div id="goal-view-info-section-bottom" class="text-center populated-only">
-<!--
-        <img width="16" height="16" src="img/realitykeys_32.png">
-          <span id="goal-view-reality-key-link-container" class=""><a href="#" id="goal-view-reality-key-link">Track my progress on Reality Keys.</a></span>
--->
-      </div>
-
-
 
 </section>
 
@@ -381,22 +371,6 @@ Some people may prefer single instance, but for now let's keep it simple
                   </tr>
 
               </tbody></table>
-
-               <hr />
-
-              <form id="import-form" class="form-horizontal">
-                <fieldset>
-                  <div class="row form-group load-row" style="text-align:center">
-                    <span data-type="add" class="col-md-8"><input id="import-contract-url" name="import-contract-url" type="text" placeholder="You cannot pull direct from Twitter, so you need a URL of a site that collects the tweets." class="form-control" /></span>
-                    <span data-type="add" class="col-md-2">&nbsp;</span>
-                    <span data-type="load-button" class="col-md-2"><button type="submit" class="btn btn-primary action-button load-button">Fetch from Twitter</button></span>
-                  </div>
-                </fieldset>
-              </form>
-
-</section>
-
-<section class="container-fluid goal-view-section" id="section6">
 
 </section>
 

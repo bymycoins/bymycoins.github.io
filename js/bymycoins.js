@@ -1538,7 +1538,7 @@ console.log(txHex);
         };
         var wins_on = 'Yes';
         var user_pubkey = $('#public-key').text();
-        var is_testnet = $('#is-testnet').is(':checked');
+        var is_testnet = $('#is-testnet').val() == '0' ? true : false;
         var charity_display = $('#charity-select').find(':selected').text();
         var charity_pubkey = $('#charity-select').val();
         if (charity_pubkey == 'other') {
@@ -1653,7 +1653,7 @@ console.log(txHex);
             //console.log("got default seed:");
             //console.log(default_seed);
             $('#mnemonic').val(seed_to_mnemonic(default_seed['seed']).toWords().join(' '));
-            $('#is-testnet').prop('checked', default_seed['is_testnet']);
+            $('#is-testnet').val(default_seed['is_testnet'] ? '1' : '0');
             $('#public-key').text(default_seed['pub']);
             $('.public-key-display').show();
         }
