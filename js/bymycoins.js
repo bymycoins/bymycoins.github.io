@@ -1521,11 +1521,6 @@ console.log(txHex);
 
     function handle_set_goal_form_change() {
         update_goal_text($('#set-goal-form'));
-        if ( $('#user').val() == '') {
-            $('#set-goal-form').addClass('need-connect');
-        } else {
-            $('#set-goal-form').removeClass('need-connect');
-        }
     }
 
     function register_contract() {
@@ -1619,10 +1614,8 @@ console.log(txHex);
         var athlete = url_parameter_by_name('completed_user_id');
         if (athlete) {
             store_athlete(athlete);
-            $('#user').val(athlete);
-            handle_set_goal_form_change();   
+            window.location.replace(location.pathname);
         }
-
 
         select_to_icon('activity-icon', 'data-activity', $('#activity').val());
         $('.activity-icon').click( function() {
