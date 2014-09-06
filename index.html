@@ -160,10 +160,10 @@
       <ul class="nav navbar-nav navbar-left">
         <li><a class="individuals-only list-view needs-mnemonic-created-and-confirmed" href="#section1">I Swear</a></li>
         <li><a href="#section2">My Secret</a></li>
-        <li><a href="#section3">Lock up your coins</a></li>
+        <li><a href="#section3">Lock Up Coins</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed" ><a href="#section5">Claim your coins</a></li>
+        <li class="individuals-only list-view needs-mnemonic-created-and-confirmed" ><a href="#section5">Claim Coins</a></li>
       </ul>
 
 
@@ -182,11 +182,11 @@
 <!--
 Some people may prefer single instance, but for now let's keep it simple
 -->
-<input type="hidden" id="measurement" name="measurement" value="cumulative_distance" />
+<input type="hidden" id="measurement" value="cumulative_distance" />
 <div class="form-group">
     <label for="user" class="control-label col-md-6">I<span class="user-text"></span> swear by my <span class="coin-type-text">coins</span></label>
     <div class="col-md-3">
-    <select name="is-testnet" id="is-testnet" class="form-control ">
+    <select id="is-testnet" class="form-control ">
         <option selected="selected" value="0">Testnet Coins (Recommended)</option>
         <option value="1">Bitcoins (Use at your own risk!)</option>
     </select>

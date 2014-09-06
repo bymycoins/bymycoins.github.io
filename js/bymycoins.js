@@ -690,6 +690,10 @@ console.log(c251t_tx_hex_wrong);
         return charity_display_for_pubkey(pubkey);
     }
 
+    function activity_verb(activity) {
+        return $('#activity').find('option[value="'+activity+'"]').attr('data-verb');
+    }
+
     // TODO: This ends up duplicating a lot with display_single_contract
     function import_contract_if_required(c) {
 
@@ -846,7 +850,14 @@ console.log(c251t_tx_hex_wrong);
                 } else {
                     $('#view-goal-store').show();
                 }
-                var txt = '@bymycoins I will complete ' + data['activity'] + ' ' + data['goal'] + 'm by ' + formatted_date(data['settlement_date']) + ' or pay ' + data['charity_display'];
+                var contract_text = {
+                    'activity_verb': activity_verb(data['activity']),
+                    'goal_text': data['goal'] + ' meters',
+                    'settlement_date': data['settlement_date'],
+                    'charity_display': charity_display_for_pubkey(c['no_user_pubkey']),
+                    'user': data['user_profile']
+                }
+                var txt = formatted_title_start(contract_text, false, true) + formatted_title_end(contract_text, false, true);
                 txt = txt + ' ' + sharing_url(data, true);
                 $('#twitter-button').attr('href', 'http://twitter.com/home?status=' + encodeURIComponent(txt));
 
@@ -899,7 +910,7 @@ console.log(c251t_tx_hex_wrong);
                         var balance = tx_data['data']['balance'];
 
                         var contract_text = {
-                            'activity_verb': data['activity'], // $('#activity').find(':selected').attr('data-verb'),
+                            'activity_verb': activity_verb(data['activity']),
                             'goal_text': data['goal'] + ' meters',
                             'settlement_date': data['settlement_date'],
                             'charity_display': data['charity_display'],
@@ -1497,7 +1508,7 @@ console.log(txHex);
         $('.contract-title-end').text(formatted_title_end(contract_text, false));
     }
 
-    function formatted_title_start(ct, past) {
+    function formatted_title_start(ct, past, tweet) {
         if (past) {
             txt = ct['user'] + ' swore';
             if (ct['total_received']) {
@@ -1507,16 +1518,18 @@ console.log(txHex);
             txt = txt.charAt(0).toUpperCase()+txt.substring(1); // capitalize first letter
             return txt;
         }
-        var txt = 'I';
-        if (ct['user'] != '') {
+        var txt = tweet ? '@bymycoins I' : 'I';
+        if (!tweet && ct['user'] != '') {
             txt += ', '+ct['user'] + ',';
         }
-        txt += ' swear by my coins to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+formatted_date(ct['settlement_date']);  
+        txt += tweet ? ' swear' : ' swear by my coins';
+        txt += ' to ' + ct['activity_verb'] + ' ' + ct['goal_text'] + ' by '+formatted_date(ct['settlement_date']);  
         return txt;
     }
 
-    function formatted_title_end(ct, past) {
-        return '...or they will go to ' + ct['charity_display'];
+    function formatted_title_end(ct, past, tweet) {
+        var txt = tweet ? ' or' : '...or';
+        return txt + ' they will go to ' + ct['charity_display'];
     }
 
     function handle_set_goal_form_change() {
@@ -1524,7 +1537,7 @@ console.log(txHex);
     }
 
     function register_contract() {
-
+        $('body').addClass('registering-fact');
         var url = oracle_api_base + '/runkeeper/new';
         params = {
             'user_id': $('#user').val(),
@@ -1552,49 +1565,47 @@ console.log(txHex);
         // debugging thing to use an existing fact instead
         var response;
         var override_with_fact_id = parseInt($('#override-with-existing-fact-id').val());
+        var request_type = 'POST';
         if (override_with_fact_id > 0) {
-            var fact_id = 
             url = oracle_api_base + '/runkeeper/'+override_with_fact_id+'/'+oracle_param_string
-            var response = $.ajax({
-                url: url, 
-                async: false,
-                type: 'GET',
-                dataType: 'json', 
-            });
-        } else {
-            var response = $.ajax({
-                url: url, 
-                async: false,
-                type: 'POST',
-                data: params,
-                dataType: 'json', 
-            });
-        }
-        if (response.status != 200) {
+            request_type = 'GET';
+            params = null;
+        } 
+        $.ajax({
+            url: url, 
+            type: request_type,
+            data: params,
+            dataType: 'json', 
+        }).done(function(data) {
+            data['wins_on'] = wins_on;
+            data['yes_user_pubkey'] = user_pubkey;
+            data['no_user_pubkey'] = charity_pubkey;
+            data['charity_display'] = charity_display;
+            data['is_testnet'] = is_testnet;
+            data['address'] = p2sh_address(data);
+
+            var jump_to = '#' + sharing_url(data, false);
+            document.location.hash = jump_to;
+            $(document).scrollTop( $("#section3").offset().top );
+
+            store_contract(data);
+            reflect_contract_added(data);
+
+            console.log("submitted, resulting data is:");
+            console.log(data);
+                         console.log(", resulting data is:");
+            console.log(data);
+        }).fail( function(data) {
             console.log(response);
-            console.log(response.responseJSON['errors']);
             bootbox.alert('Sorry, could not register the fact with Reality Keys.');
             return false;
-        }
-        var data = response.responseJSON;
-        data['wins_on'] = wins_on;
-        data['yes_user_pubkey'] = user_pubkey;
-        data['no_user_pubkey'] = charity_pubkey;
-        data['charity_display'] = charity_display;
-        data['is_testnet'] = is_testnet;
-        data['address'] = p2sh_address(data);
+        }).always( function(data) {
+            $('body').removeClass('registering-fact');
+        });
 
-        var jump_to = '#' + sharing_url(data, false);
+        //$(document).scrollTop( $("#section3").offset().top );
 
-        store_contract(data);
-        reflect_contract_added(data);
-
-        console.log("submitted, resulting data is:");
-        console.log(data);
-        document.location.hash = jump_to;
-        $(document).scrollTop( $("#section3").offset().top );
-        console.log(", resulting data is:");
-        console.log(data);
+console.log('returning')
         return false;
 
     }
@@ -1710,6 +1721,7 @@ console.log(txHex);
 
         $('#set-goal-submit').click( function() {
             register_contract();
+            return false;
         });
 
         $('.jump-to-secret').click( function() {
