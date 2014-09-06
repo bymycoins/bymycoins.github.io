@@ -594,7 +594,8 @@ console.log(c251t_tx_hex_wrong);
 
     function import_contracts(import_url) {
         var pubkey = $('#public-key').text();
-        var url = $('#import-contract-url').val() + pubkey;
+        //var url = $('#import-contract-url').val() + pubkey;
+        var url = import_url + pubkey;
         $.ajax({
             url: url, 
             type: 'GET',
@@ -1528,8 +1529,11 @@ console.log(txHex);
     }
 
     function formatted_title_end(ct, past, tweet) {
-        var txt = tweet ? ' or' : '...or';
-        return txt + ' they will go to ' + ct['charity_display'];
+        if (tweet) {
+            return ' or pay ' + ct['charity_display'];
+        } else {
+            return '...or they will go to ' + ct['charity_display'];
+        }
     }
 
     function handle_set_goal_form_change() {
@@ -1766,10 +1770,20 @@ console.log('returning')
             return false;
         });
 
+        // The charity will hopefully have lots of contracts on Twitter.
+        // We'll send them a special URL with the import_url parameter
+        // The value of this will be a URL that pulls the Tweets into a feed.
+        // This will need to run on a server somewhere, as we can't pull direct from Twitter without an API key.
+        var import_url = url_parameter_by_name('import_url');
+        if (import_url) {
+            if (import_url == 'http://tweets.bymycoins.com/') {
+                import_contracts(import_url);
+            } else {
+                bootbox.alert('Only accepting import URL http://tweets.bymycoins.com/ at the moment.');
+            }
+        }
+
         $('body').addClass('initialized');
 
     }
-
-        $('#test-table').sortable();
-
 
