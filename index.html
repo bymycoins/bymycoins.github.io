@@ -68,8 +68,9 @@
     tr.contract-data-row:not(.i-lost) .contract-detail.needs-i-lost { display:none }
 
     tr.contract-data-row:not(.funded) .btn.claim-button { visibility:hidden }
-    tr.contract-data-row.undecided .btn.claim-button { visibility:hidden }
-    tr.contract-data-row:not(.undecided) .btn.fund-button { visibility:hidden }
+    tr.contract-data-row:not(.i-won) .btn.claim-button { visibility:hidden }
+
+    tr.contract-data-row.decided .btn.fund-button { visibility:hidden }
 
     #section3:not(.populating) div.populating-only { visibility:hidden }
     #section3:not(.populated) div.populated-only { visibility:hidden }
