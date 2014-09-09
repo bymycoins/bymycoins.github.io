@@ -1261,8 +1261,6 @@ console.log(txHex);
 
                         var winner = data['winner'];
                         
-
-
                         if (data.winner == 'Yes') {
                             var winner_privkey_wif = data['winner_privkey'];
                             if (winner_privkey_wif == null) {
@@ -1291,7 +1289,7 @@ console.log(txHex);
                                             return;
                                         }
                                         console.log("executing for "+result);
-                                        //execute_claim(result, c, txes, winner_privkey);
+                                        execute_claim(result, c, txes, winner_privkey);
                                         return;
                                     });
                                     return;
