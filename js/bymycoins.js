@@ -1169,7 +1169,6 @@ console.log(txHex);
 
     function append_contract_to_display(c) {
 
-
         var frm = $('#claim-form');
 
         // The address should uniquely identify the contract, so only ever add the same address once.
@@ -1205,9 +1204,9 @@ console.log(txHex);
             } else {
                 row.addClass('key-not-ready').removeClass('key-ready');
             }
-            if (wins_on == 'Yes') {
+            if (winner == 'Yes') {
                 row.addClass('winner-yes').removeClass('winner-no').removeClass('winner-undecided');
-            } else if (wins_on == 'No') {
+            } else if (winner == 'No') {
                 row.addClass('winner-no').removeClass('winner-yes').removeClass('winner-undecided');
             }
         } else {
@@ -1364,12 +1363,28 @@ console.log(txHex);
                 //console.log("got response from blockchain");
                 //console.log(data);
                 c['balance'] = data['data']['balance'];
-                append_contract_to_display(c);
+                populate_reality_key_and_append_to_display(c);
             },
             error: function(data) {
-                console.log("got error from blockchain");
-                console.log(data);
+                c['load_error_funds'] = true;
+                populate_reality_key_and_append_to_display(c);
             }
+        });
+
+    }
+
+    function populate_reality_key_and_append_to_display(c) {
+
+        var url = oracle_api_base + '/runkeeper/'+c['id']+'/'+oracle_param_string
+        $.ajax({
+            url: url, 
+            type: 'GET',
+            dataType: 'json', 
+        }).fail( function(data) {
+            c['load_error_fact'] = true;
+        }).always( function(data) {
+            $.extend(c, data);
+            append_contract_to_display(c);
         });
 
     }
