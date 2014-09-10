@@ -657,6 +657,7 @@ console.log(c251t_tx_hex_wrong);
 
     function view_contract_if_in_hash(import_hash) {
 
+console.log("import import_hash "+import_hash);
         var c = hash_to_contract(import_hash);
         if (c == null) {
             return false;
@@ -1260,52 +1261,44 @@ console.log(txHex);
                         }
 
                         var winner = data['winner'];
-                        
-                        if (data.winner == 'Yes') {
-                            var winner_privkey_wif = data['winner_privkey'];
-                            if (winner_privkey_wif == null) {
-                                alert('Sorry, the key has not been published yet. Please try again soon.');
-                            }
-                            // This will be in WIF format for bitcoin livenet.
-                            // We'll turn this into a network-neutral hex private key.
-                            var w = new bitcore.WalletKey({
-                                network: bitcore.networks.livenet,
-                            });
-                            w.fromObj({ priv: winner_privkey_wif });
-                            var winner_privkey = w.privKey.private.toString('hex');
-                           console.log(c); 
-                            var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'https://btc.blockr.io/api/v1/address/unspent/'+addr;
-                            url = url + '?confirmations=0';
-                            url = url + '&unconfirmed=1'; // unspent seems to need both of these
-                            $.ajax({
-                                url: url, 
-                                type: 'GET',
-                                dataType: 'json', 
-                                success: function(tx_data) {
-                                    var txes = tx_data['data']['unspent'];
-                                    bootbox.prompt( 'What address to do want to send your winnings to?', function(result) {
-                                        if (result === null) {
-                                            console.log("no result");
-                                            return;
-                                        }
-                                        console.log("executing for "+result);
-                                        execute_claim(result, c, txes, winner_privkey);
-                                        return;
-                                    });
-                                    return;
-                                },
-                                error: function(data) {
-                                    console.log("got error from fake");
-                                    console.log(data);
-                                }
-                            });
-                            return;
-                        } else {
-                            alert('Sorry, you lost');
-                            return;
+                        var winner_privkey_wif = data['winner_privkey'];
+                        if (winner_privkey_wif == null) {
+                            alert('Sorry, the key has not been published yet. Please try again soon.');
                         }
-
-                        alert('ok');
+                        // This will be in WIF format for bitcoin livenet.
+                        // We'll turn this into a network-neutral hex private key.
+                        var w = new bitcore.WalletKey({
+                            network: bitcore.networks.livenet,
+                        });
+                        w.fromObj({ priv: winner_privkey_wif });
+                        var winner_privkey = w.privKey.private.toString('hex');
+                       console.log(c); 
+                        var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'https://btc.blockr.io/api/v1/address/unspent/'+addr;
+                        url = url + '?confirmations=0';
+                        url = url + '&unconfirmed=1'; // unspent seems to need both of these
+                        $.ajax({
+                            url: url, 
+                            type: 'GET',
+                            dataType: 'json', 
+                            success: function(tx_data) {
+                                var txes = tx_data['data']['unspent'];
+                                bootbox.prompt( 'What address to do want to send your winnings to?', function(result) {
+                                    if (result === null) {
+                                        console.log("no result");
+                                        return;
+                                    }
+                                    console.log("executing for "+result);
+                                    execute_claim(result, c, txes, winner_privkey);
+                                    return;
+                                });
+                                return;
+                            },
+                            error: function(data) {
+                                console.log("got error from fake");
+                                console.log(data);
+                            }
+                        });
+                        return;
                     },
                     error: function(data) {
                         console.log("got error from fake");
@@ -1759,13 +1752,7 @@ console.log('returning')
 
         // If there's a hash with the contract details, go straight to that contract
         if (document.location.hash) {
-            if (document.location.hash == '#charity') {
-                $('body').addClass('for-charities').removeClass('for-individuals');
-                $('#page-individual-switch').removeClass('active');
-                $('#page-charity-switch').removeClass('active');
-            } else {
-                view_contract_if_in_hash(document.location.hash);
-            }
+            view_contract_if_in_hash(document.location.hash);
         }
 
         $('.filter-icon').click( function() {
