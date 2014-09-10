@@ -1017,6 +1017,12 @@ console.log("import import_hash "+import_hash);
             user_privkey = stored_priv_for_pub(c['no_user_pubkey']);
         }
         if (user_privkey == null) {
+            bootbox.alert('You do not appear to have the key you need to claim these bitcoins.');
+            return false;
+        }
+
+        if (txes.length == 0) {
+            bootbox.alert('Could not find any funds to claim. Maybe they have already been claimed?');
             return false;
         }
 
@@ -1272,8 +1278,8 @@ console.log(txHex);
                         });
                         w.fromObj({ priv: winner_privkey_wif });
                         var winner_privkey = w.privKey.private.toString('hex');
-                       console.log(c); 
-                        var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+addr : 'https://btc.blockr.io/api/v1/address/unspent/'+addr;
+                        console.log(c); 
+                        var url = c['is_testnet'] ? 'https://tbtc.blockr.io/api/v1/address/unspent/'+c['address'] : 'https://btc.blockr.io/api/v1/address/unspent/'+c['address'];
                         url = url + '?confirmations=0';
                         url = url + '&unconfirmed=1'; // unspent seems to need both of these
                         $.ajax({
