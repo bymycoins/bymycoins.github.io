@@ -971,7 +971,11 @@ console.log("import import_hash "+import_hash);
 
     function eligius_cross_domain_post(data) {
 
-        var url = 'http://eligius.st/~wizkid057/newstats/pushtxn.php';
+        // Some browsers refuse to do http posts from https pages
+        // For now proxy eligius over https to work around this 
+        // If helper.bymycoins.com goes away you may need to restore eligius and tinker with browser settings
+        //var url = 'http://eligius.st/~wizkid057/newstats/pushtxn.php';
+        var url = 'https://helper.bymycoins.com/pushnonstandardtx/pushtxn.php';
 
         var iframe = document.createElement("iframe");
         document.body.appendChild(iframe);
@@ -1782,10 +1786,10 @@ console.log('returning')
         // This will need to run on a server somewhere, as we can't pull direct from Twitter without an API key.
         var import_url = url_parameter_by_name('import_url');
         if (import_url) {
-            if (import_url == 'http://tweets.bymycoins.com/') {
+            if (import_url == 'https://helper.bymycoins.com/twitter/') {
                 import_contracts(import_url);
             } else {
-                bootbox.alert('Only accepting import URL http://tweets.bymycoins.com/ at the moment.');
+                bootbox.alert('Only accepting import URL https://helper.bymycoins.com/twitter/ at the moment.');
             }
         }
 
