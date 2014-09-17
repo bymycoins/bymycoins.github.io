@@ -1,0 +1,25 @@
+This app helps you set up smart contracts with your future self. You can set a target with RunKeeper and lock up some coins, and you only get them back if you complete your target. Missing the target forfeits the coins to the charity of your choice.
+
+The steps to use it should be fairly obvious, but it works like this:
+
+1) Set a goal, eg. I will walk 5000 meters by Saturday.
+2) Choose a charity or beneficiary who will be paid if you don't make it. By default it will fund my wife's flight to the 2014 World Savate Assaut Championship in Rome. We'd happy to list any other good cause - the app will give you a public key, which you can send to us to add to the list. Alternatively you can pair up with a friend - just select the "other" option and stick their public key in the box. (The app will give you a public key on the "Secret" screen.)
+3) The app will send you to RunKeeper, where you need to give Reality Keys permission to look at your data.
+4) You get a 12-word mnemonic which you'll need to keep safe. You can use this to restore to a different browser later.
+5) You get an address to pay, which you can fund with as much money as you want to lock up. 
+6) The app will give you a prompt to tweet your contract to @bymycoins. Anyone will be able to click on that and see the contract. If they want to they'll also be able to pay the address to encourage you. You don't have to tweet, but the charity won't be able to claim the funds unless you somehow let it know about the contract.
+7) A day or so after the deadline you set, you'll be able to claim the coins if you make it. If you don't, the charity will be able to claim your coins.
+
+Feel free to fork this app - it could be made to do all kinds of different things with some fairly minor changes. The obvious one is to flip it around to do the equivalent of sponsored walks (funder funds, charity gets the funds if you make it, funder gets them back if you don't) but similar code could power a lot of different kinds of apps, especially with different data sources. Don't hesitate to let us know if there's a data source we can add to Reality Keys to allow you to make something interesting. 
+
+All comments, questions and suggestions welcome, as of course are reports of security issues.
+
+Technical stuff:
+* It's a browser app, which is convenient but hard to secure. If anybody wants a little python script to do the same job let us know and we'll put one together.
+* The app is built on bitcore.js.
+* We use a custom transaction to send the money to the right place depending on which Reality Key gets sent. This means that the part where you claim winning funds is currently non-standard. The app sends it directly to Eligius, which mines it, but that means you may need to wait a few hours for Eligius to find a block. The transaction we're using should become standard in Bitcoin 0.10.
+* As far as possible the app is purely client-side. But we use the following APIs:
+ 1) Reality Keys for the information about whether you reached your goal.
+ 2) Blockr.io for payment information and pushing transactions to the network. 
+ 3) A little proxy service we run ourselves for pushing transactions to Eligius over HTTPS, as their submission form is HTTP-only which upsets some browsers when serving a page over HTTPS. (We hope to replace this soon.)
+ 4) A little server-side script to gather up information about contracts from Twitter and make it easier for the charity to receive them. (It would work without that, but somebody at the charity end would have to click on each contract to load it into their browser.)
