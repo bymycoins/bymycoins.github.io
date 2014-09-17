@@ -99,3 +99,128 @@ footer .nav>li>a:hover {
     background-color:transparent;
 	color:#fff;
 }
+
+
+/*
+Some elements may or may not be displayed depending on what we find in the URL or local storage.
+initialize_page() should set it correctly, but hide it initially.
+Because it makes for a weird flash if we show something on load then immediately hide it again.
+*/
+body:not(.initialized) .initialized-only { visibility:hidden }
+
+.fontello-icon { font-size:24px }
+.filter-icon { display:none}
+.filter-icon.selected { display:block }
+
+#claim-form { width:100% }
+
+.button-row{ padding-top:40px; }
+
+table.filter-winner--winner-yes tr.contract-data-row:not(.winner-yes) { display:none !important}
+table.filter-winner--winner-no tr.contract-data-row:not(.winner-no) { display:none !important}
+table.filter-winner--winner-undecided tr.contract-data-row:not(.winner-undecided) { display:none !important }
+
+table.filter-funds--funded-i-won tr.contract-data-row:not(.funded) { display:none !important }
+table.filter-funds--funded-i-won tr.contract-data-row:not(.i-won) { display:none !important }
+
+table.filter-funds--funded-i-lost tr.contract-data-row:not(.funded) { display:none !important }
+table.filter-funds--funded-i-lost tr.contract-data-row:not(.i-lost) { display:none !important }
+
+table.filter-funds--funded-undecided tr.contract-data-row:not(.funded) { display:none !important }
+table.filter-funds--funded-undecided tr.contract-data-row:not(.undecided) { display:none !important }
+
+table.filter-funds--unfunded tr.contract-data-row:not(.unfunded) { display:none !important }
+
+tr.contract-data-row:not(.winner-yes) .needs-winner-yes { display:none }
+tr.contract-data-row:not(.winner-no) .needs-winner-no { display:none }
+tr.contract-data-row:not(.winner-undecided) .needs-winner-undecided { display:none }
+
+tr.contract-data-row:not(.funded) .contract-detail.needs-funded{ display:none }
+tr.contract-data-row:not(.unfunded) .contract-detail.needs-unfunded{ display:none }
+
+tr.contract-data-row:not(.wins-on-yes) .contract-detail.needs-wins-on-yes { display:none }
+tr.contract-data-row:not(.wins-on-no) .contract-detail.needs-wins-on-no { display:none }
+tr.contract-data-row:not(.wins-on-none) .contract-detail.needs-wins-on-none { display:none }
+
+tr.contract-data-row:not(.decided) .contract-detail.needs-decided { display:none }
+tr.contract-data-row:not(.undecided) .contract-detail.needs-undecided { display:none }
+
+tr.contract-data-row:not(.key-not-ready) .contract-detail.needs-key-not-ready { display:none }
+
+tr.contract-data-row:not(.i-won) .contract-detail.needs-i-won { display:none }
+tr.contract-data-row:not(.i-lost) .contract-detail.needs-i-lost { display:none }
+
+tr.contract-data-row:not(.funded) .btn.claim-button { visibility:hidden }
+tr.contract-data-row:not(.i-won) .btn.claim-button { visibility:hidden }
+
+tr.contract-data-row.decided .btn.fund-button { visibility:hidden }
+
+#section3:not(.populating) div.populating-only { visibility:hidden }
+#section3:not(.populated) div.populated-only { visibility:hidden }
+#section3.populated div.unpopulated-only { display:none }
+#section3.populating div.unpopulated-only { display:none }
+
+.activity-icon { padding: 10px; margin:2px; }
+.activity-icon.selected { border: 2px solid #428bca; border-radius: 10px  } 
+.activity-icon:not(.selected) { padding:12px } /* Extra 1px padding to take the same space as 1px border */
+
+ /* We'll show this once they have a valid seed to make a key from */
+.public-key-display { display:none }
+
+.dev_warning { border:1px solid; color:red; text-align:center }
+.for-debugging { display:nonez }
+.linkable-anchor { padding-top: 40px; margin-top: -40px; }
+
+.view-goal-form-loading { display:none }
+section.goal-stored .view-goal-store { display: none }
+
+body:not(.mnemonic-created-and-confirmed) li.needs-mnemonic-created-and-confirmed a { color:gray }
+body.mnemonic-created-and-confirmed #confirm-mnemonic-button { display: none }
+
+body.athlete-connected #authenticate-runkeeper-user {display:none}
+
+/*
+We'll pull this button out of the main flow to make it appear first on mobile
+...but set a margin to match the padding on larger devices when it appears in the right-hand column
+*/
+#authenticate-runkeeper-user { margin-left: 15px }
+
+/*
+In theory you might want to set a different user and track someone else.
+But for now assume it'll be you to keep the UI simple.
+*/
+#user { display:none }
+
+.goal-view-section:not(.wins-on-yes) .contract-detail.needs-wins-on-yes { display:none }
+.goal-view-section:not(.wins-on-no) .contract-detail.needs-wins-on-no { display:none }
+.goal-view-section:not(.wins-on-none) .contract-detail.needs-wins-on-none { display:none }
+
+.goal-view-section:not(.decided) .contract-detail.needs-decided { display:none }
+.goal-view-section:not(.undecided) .contract-detail.needs-undecided { display:none }
+
+.goal-view-section:not(.key-not-ready) .contract-detail.needs-key-not-ready { display:none }
+
+.goal-view-section:not(.i-won) .contract-detail.needs-i-won { display:none }
+.goal-view-section:not(.i-lost) .contract-detail.needs-i-lost { display:none }
+
+.goal-view-balance-container { display:none }
+.goal-view-reality-key-link-container { display:none; bottom:5px }
+
+#set-goal-form .form-group { height:50px; vertical-align:middle !important }
+
+
+/* Start by hiding all the buttons on the goal setting form, then show them where necessary */
+.goal-section .set-goal-submit { display:none }
+.goal-section .jump-to-secret{ display:none }
+.goal-section .jump-to-connect{ display:none }
+
+body.initialized.mnemonic-created-and-confirmed.athlete-connected .set-goal-submit {display:inline}
+body.initialized.athlete-connected:not(.mnemonic-created-and-confirmed) .jump-to-secret{ display:inline}
+
+/*
+There will be a single item at the bottom of the page for showing an individual contract
+This will be empty unless you hit "view" or have the details in a URL.
+We use visibility hidden here instead of display none to avoid confusing the browser trying to link to an anchor that isn't being displayed, which can cause strange visual effects.
+*/
+.goal-view-section { visibility: hidden }
+#mnemonic {text-align: center}
